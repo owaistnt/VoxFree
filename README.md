@@ -14,7 +14,7 @@ I am not a seasoned Linux systems developer. This project was built with a lot o
 
 **If something breaks, I sincerely ask for your patience and kindness.** Every bug report is genuinely useful — it helps narrow down the configurations that need fixing and makes the project better for everyone. Please open an issue and describe what failed; I will do my best to address it.
 
-> **Report bugs:** [github.com/owaisidris/VoxFree/issues](https://github.com/owaisidris/VoxFree/issues)
+> **Report bugs:** [github.com/owaistnt/VoxFree/issues](https://github.com/owaistnt/VoxFree/issues)
 
 The long-term goal is to make the Linux desktop feel more immersive and accessible through voice — where reading and dictating feel as natural as typing. VoxFree is a small step toward that.
 

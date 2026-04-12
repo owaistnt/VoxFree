@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: voxfree
 Upstream-Contact: VoxFree Project <voxfree@example.com>
-Source: https://github.com/owaisforandroid/VoxFree
+Source: https://github.com/owaistnt/VoxFree
 
 Files: *
 Copyright: 2026 Owais Idris
