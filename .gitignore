@@ -9,6 +9,9 @@ Thumbs.db
 # Backup configs created by installer
 *.bak
 
+# Build staging area (pre-built releases go in releases/ instead)
+dist/
+
 # Claude Code development files (not for public consumption)
 CLAUDE.md
 .claude/

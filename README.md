@@ -113,6 +113,39 @@ sudo bash install.sh --all    # both silently
 
 ---
 
+## Install via .deb Package
+
+Pre-built `.deb` packages are available in the [`releases/`](releases/) folder for Ubuntu 24.04 (amd64).
+
+```bash
+# 1. Download the .deb
+wget https://github.com/owaistnt/VoxFree/raw/main/releases/voxfree_0.1.1_all.deb
+
+# 2. Install
+sudo dpkg -i voxfree_0.1.1_all.deb
+
+# 3. Fix any missing dependencies
+sudo apt install -f
+
+# 4. Configure (choose TTS, STT, or both)
+sudo voxfree --install
+```
+
+**After install:** log out and back in once (activates ydotool auto-paste for STT).
+
+> The `.deb` installs VoxFree scripts to `/usr/share/voxfree/` and the `voxfree` and `voxfree-doctor` commands to `/usr/local/bin/`. It does **not** download Whisper or Mimic 3 automatically — `sudo voxfree --install` handles that interactively.
+
+### Upgrade from a previous version
+
+```bash
+sudo dpkg -i voxfree_0.1.1_all.deb   # dpkg handles the upgrade automatically
+voxfree --doctor                       # verify everything is working
+```
+
+No reconfiguration needed on upgrade — keyboard shortcuts and settings are preserved.
+
+---
+
 ## Verify Your Installation — VoxFree Doctor
 
 Run the doctor after installing to check every component is correctly set up:
