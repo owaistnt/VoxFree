@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files created during runtime
+/tmp/
+*.log
+
+# Backup configs created by installer
+*.bak
+
+# Claude Code development files (not for public consumption)
+CLAUDE.md
+.claude/

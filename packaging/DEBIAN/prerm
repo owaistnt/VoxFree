@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+case "$1" in
+    remove|purge)
+        # Remove installed bin wrappers
+        for CMD in voxfree voxfree-doctor voxfree-readloud voxfree-readloud-stop \
+                   voxfree-stop-all voxfree-dictate voxfree-dictate-stop; do
+            rm -f "/usr/local/bin/$CMD"
+        done
+        ;;
+esac

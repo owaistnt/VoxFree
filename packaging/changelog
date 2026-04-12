@@ -1,0 +1,32 @@
+voxfree (0.1.1) unstable; urgency=medium
+
+  * fix: F11 (voxfree-stop-all) now delegates to voxfree-dictate-stop when
+    recording is active, so STT audio is transcribed instead of discarded
+  * fix: speak-to-type.sh rewired to copy scripts from source files; previously
+    it embedded and installed a stale toggle-based voxfree-dictate, breaking
+    fresh installs of install.sh --all
+  * fix: speak-to-type.sh now installs voxfree-dictate-stop and voxfree-stop-all,
+    and writes correct dconf binding names (voxfree-readloud/dictate/stop-all)
+  * docs: correct all stale script names (read-selection, speech-start/stop) in
+    README.md, readloud.md, speak-to-type.md, docs/architecture.md,
+    docs/building-blocks.md
+  * docs: fix standard shortcuts throughout (Ctrl+Alt → Super+Shift)
+  * docs: readloud.md — remove false clipboard fallback claim; add voxfree-stop-all
+  * docs: architecture.md — correct F11 flow diagram, add F10/F11 shortcut flows,
+    add voxfree-stop-all to file layout
+  * docs: building-blocks.md — correct paste description to show smart paste
+    (ctrl+shift+v for terminals, ctrl+v for apps)
+
+ -- VoxFree Project <voxfree@example.com>  Sun, 12 Apr 2026 00:00:00 +0530
+
+voxfree (0.1.0) unstable; urgency=low
+
+  * Initial release
+  * ReadLoud: Text-to-Speech via Mycroft Mimic 3 (F9 toggle, voice selector)
+  * SpeakToType: Speech-to-Text via Whisper base.en (F10 start, F11 stop+paste)
+  * voxfree CLI: unified entry point (--install, --doctor, --voice, --uninstall)
+  * voxfree-doctor: 36-point health checker
+  * System and per-user install modes
+  * .deb packaging with postinst configuration
+
+ -- VoxFree Project <voxfree@example.com>  Sun, 12 Apr 2026 00:00:00 +0530

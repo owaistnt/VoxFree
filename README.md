@@ -1,0 +1,260 @@
+# VoxFree
+
+**Offline voice tools for Ubuntu 24.04 GNOME/Wayland.**
+
+Press a key to hear any text read aloud. Press a key to speak and have your words typed anywhere. No internet, no cloud APIs, no subscriptions. Everything runs locally on your machine.
+
+---
+
+## Sub-projects
+
+### 🔊 ReadLoud — Text-to-Speech
+
+Highlight any text on screen and press **F9** to hear it read aloud. Press **F9** again to stop.
+
+- **Engine:** Mycroft Mimic 3 (neural TTS, offline)
+- **Voice:** en_UK/apope_low (British English) — more voices downloadable
+- **Works in:** any app — browser, PDF, terminal, document, email
+- **System-wide:** all users, all sessions
+
+→ [ReadLoud documentation](ReadLoud/readloud.md)
+
+---
+
+### 🎙 SpeakToType — Speech-to-Text
+
+Press **F10** to start recording, speak, press **F11** to stop — your words appear at the cursor.
+
+- **Engine:** OpenAI Whisper base.en + int8 quantisation (~2s transcription)
+- **Recording:** arecord (ALSA/pipewire-alsa, reliable from GNOME shortcuts)
+- **Noise reduction:** sox noise profile applied before transcription
+- **Paste:** ydotool Ctrl+V (all Wayland apps) or xdotool fallback
+- **System-wide:** all users, shared model cache in /var/cache/huggingface/
+
+→ [SpeakToType documentation](SpeakToType/speak-to-type.md)
+
+---
+
+## Quick Install
+
+```bash
+# Clone or copy VoxFree to your machine, then:
+sudo bash install.sh
+```
+
+Prompts you to choose TTS, STT, or both. Or use flags:
+
+```bash
+sudo bash install.sh --tts    # ReadLoud only
+sudo bash install.sh --stt    # SpeakToType only
+sudo bash install.sh --all    # both silently
+```
+
+**After install:** log out and back in once (activates ydotool auto-paste for STT).
+
+---
+
+## Verify Your Installation — VoxFree Doctor
+
+Run the doctor after installing to check every component is correctly set up:
+
+```bash
+bash voxfree-doctor.sh
+```
+
+It checks 36 points across four sections and prints a full summary grouped by result:
+
+```
+  VoxFree Doctor
+  Checking your VoxFree installation...
+
+System
+──────
+  [✔] Ubuntu 24.04 (Noble)
+  [✔] Wayland session (ubuntu:GNOME)
+  [✔] PipeWire audio server running
+
+ReadLoud — Text-to-Speech
+─────────────────────────
+  [✔] mimic3 0.2.4 — /usr/bin/mimic3
+  [✔] Voice en_UK/apope_low available
+  ...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Summary  (36 passed · 0 warnings · 0 failed)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Passed:
+    [✔] [System] Ubuntu 24.04 (Noble)
+    [✔] [ReadLoud] mimic3 0.2.4
+    ...
+
+  ✔ VoxFree is fully operational!
+```
+
+### Doctor flags
+
+| Flag | Description |
+|------|-------------|
+| *(none)* | Full check — all 36 points |
+| `--tts` | ReadLoud checks only |
+| `--stt` | SpeakToType checks only |
+| `--fix` | Show the exact fix command for every failure/warning |
+
+```bash
+bash voxfree-doctor.sh --fix    # show remediation for every issue
+bash voxfree-doctor.sh --tts    # check ReadLoud only
+bash voxfree-doctor.sh --stt    # check SpeakToType only
+```
+
+### What it checks
+
+| Section | Checks |
+|---------|--------|
+| **System** | Ubuntu version, Wayland session, PipeWire running |
+| **ReadLoud** | mimic3 binary, voice model, speech-dispatcher config (local mode), aplay, wl-paste, scripts, live TTS audio test |
+| **SpeakToType** | arecord, sox, whisper symlink, whisper-ctranslate2 venv, base.en model, model permissions, HF_HOME env var, HF_HUB_OFFLINE not blocking downloads, ydotool, input group, /dev/uinput, xdotool, wl-copy, mic unmuted, live recording test, scripts |
+| **GNOME Shortcuts** | gsd-media-keys daemon, dconf profile, shortcuts file, F9/F10/F11 bindings, wev |
+
+---
+
+## Keyboard Shortcuts
+
+### Lenovo ThinkPad (verified on Ubuntu 24.04 via `wev`)
+
+| Key | Keysym | Action |
+|-----|--------|--------|
+| **F9** (✉ message icon) | `XF86Messenger` | Read selected text aloud / stop (toggle) |
+| **F10** (▶ go icon) | `XF86Go` | Start speech recording |
+| **F11** (✕ cancel icon) | `Cancel` | Stop all voice — if recording: transcribes and pastes; if reading: stops TTS |
+
+> Keysyms vary by ThinkPad model. Run `wev` and press each key to verify yours.
+
+### Standard (any Linux/GNOME machine)
+
+Uses `Super+Shift` combinations — confirmed free on all standard GNOME/Ubuntu installs.
+
+| Shortcut | Action |
+|----------|--------|
+| **Super+Shift+R** | Read selected text aloud / stop (toggle) |
+| **Super+Shift+M** | Start dictation (microphone) |
+| **Super+Shift+K** | Stop all voice activity (TTS + STT) |
+
+> **Why not Ctrl+Alt?** `Ctrl+Alt` and `Super+Alt` can conflict with Ubuntu defaults (screen recording, accessibility, input methods). `Super+Shift+[letter]` is confirmed free — only arrow/navigation keys use Super+Shift.
+
+---
+
+## System Requirements
+
+- Ubuntu 24.04 (Noble)
+- GNOME desktop on Wayland
+- ~500MB disk space (Whisper base.en model + Mimic 3)
+- No GPU required — runs on CPU
+
+---
+
+## How It Works (Architecture)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     GNOME Desktop                        │
+│                                                          │
+│  F9 pressed              F10 pressed        F11 pressed   │
+│       ↓                       ↓                  ↓        │
+│  gsd-media-keys          gsd-media-keys    gsd-media-keys │
+│       ↓                       ↓                  ↓        │
+│  voxfree-readloud     voxfree-dictate    voxfree-stop-all │
+│       ↓                       ↓            (stops TTS or  │
+│  wl-paste --primary   arecord -D default   delegates to   │
+│  (highlighted text)   (ALSA/pipewire-alsa) dictate-stop)  │
+│       ↓                       ↓                  ↓        │
+│  mimic3 (TTS)          sox noise reduction  voxfree-      │
+│       ↓                       ↓             dictate-stop  │
+│  aplay (speakers)      whisper base.en            ↓       │
+│                        (/var/cache/huggingface)   ↓       │
+│                               ↓             wl-copy +     │
+│                        smart paste:         ydotool key   │
+│                        ctrl+shift+v (term)  (pastes at    │
+│                        ctrl+v (other apps)   cursor)      │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Known Limitations
+
+- **GNOME Wayland only** — `wtype` (virtual keyboard) is blocked by Mutter compositor. Auto-paste uses ydotool via `/dev/uinput` instead.
+- **Relogin required once** — after install, log out and back in to activate ydotool (input group membership).
+- **English only** — `base.en` model. Change to `base`, `small`, or `medium` in `/usr/local/bin/voxfree-dictate-stop` for multilingual support.
+- **ThinkPad keysyms vary** — always verify with `wev` on your specific model.
+
+---
+
+## File Structure
+
+```
+VoxFree/
+├── README.md               ← this file
+├── install.sh              ← installs TTS, STT, or both
+├── deps.sh                 ← installs ALL dependencies (apt, mimic3, whisper, model)
+├── voxfree-doctor.sh       ← verifies the full installation (36 checks)
+│
+├── ReadLoud/
+│   ├── readloud.sh              ← TTS installer (called by install.sh)
+│   ├── readloud.md              ← TTS full documentation
+│   ├── voxfree-readloud.sh      ← F9: read selected text aloud (toggle)
+│   ├── voxfree-readloud-stop.sh ← force-stop TTS at any time
+│   └── voxfree-stop-all.sh      ← F11: stop all voice (TTS + STT)
+│
+└── SpeakToType/
+    ├── speak-to-type.sh         ← STT installer (called by install.sh)
+    ├── speak-to-type.md         ← STT full documentation
+    ├── voxfree-dictate.sh       ← F10: start microphone recording
+    └── voxfree-dictate-stop.sh  ← stop recording → transcribe → paste
+```
+
+### Script dependency flow
+
+```
+install.sh
+    ├── deps.sh              (installs all apt packages, mimic3, whisper, model)
+    ├── ReadLoud/readloud.sh       (configures speech-dispatcher, scripts, shortcuts)
+    └── SpeakToType/speak-to-type.sh  (configures scripts, shortcuts, udev rules)
+
+voxfree-doctor.sh        (run anytime to verify — independent of install)
+```
+
+---
+
+## Troubleshooting
+
+**Run the doctor first** — it identifies the exact problem and shows the fix:
+
+```bash
+bash voxfree-doctor.sh --fix
+```
+
+Common issues:
+
+**Shortcuts don't fire:**
+```bash
+systemctl --user start org.gnome.SettingsDaemon.MediaKeys.target
+```
+
+**Have to press Ctrl+V manually (ydotool not auto-pasting):**
+```bash
+groups | grep input   # if 'input' not shown → log out and back in
+```
+
+**Wrong words / hallucinations:**
+Recording too short — wait for the F10 start sound before speaking.
+```bash
+sox /tmp/last-stt-recording.wav -n stat 2>&1 | grep Length
+# Should be 2+ seconds
+```
+
+**Wrong ThinkPad keysyms:**
+```bash
+wev   # press each key, read the 'sym' field
+# Edit /etc/dconf/db/local.d/00-voice-shortcuts then: sudo dconf update
+```

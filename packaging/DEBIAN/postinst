@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+case "$1" in
+    configure)
+        SHARE="/usr/share/voxfree"
+        BIN="/usr/local/bin"
+
+        # Always re-copy runtime scripts from /usr/share/voxfree/ so that
+        # upgrades via dpkg pick up new versions without re-running interactive setup.
+        for F in \
+            ReadLoud/voxfree-readloud.sh:voxfree-readloud \
+            ReadLoud/voxfree-readloud-stop.sh:voxfree-readloud-stop \
+            ReadLoud/voxfree-stop-all.sh:voxfree-stop-all \
+            SpeakToType/voxfree-dictate.sh:voxfree-dictate \
+            SpeakToType/voxfree-dictate-stop.sh:voxfree-dictate-stop; do
+            SRC="${F%%:*}"
+            DEST="${F##*:}"
+            [ -f "$SHARE/$SRC" ] && install -m 755 "$SHARE/$SRC" "$BIN/$DEST"
+        done
+
+        # Fresh install: run interactive configuration if a terminal is available.
+        # Upgrade (2 is the old version passed by dpkg): scripts are updated above,
+        # no interactive setup needed.
+        if [ -z "$2" ]; then
+            # Fresh install
+            if [ -t 0 ]; then
+                echo ""
+                echo "VoxFree installed. Running configuration..."
+                bash "$SHARE/install.sh" --postinst-mode
+            else
+                echo ""
+                echo "VoxFree installed successfully."
+                echo "Run the following to configure keyboard shortcuts and dependencies:"
+                echo "  sudo voxfree --install"
+                echo ""
+                echo "Or run the health check:"
+                echo "  voxfree --doctor"
+            fi
+        else
+            # Upgrade from $2 → installed version
+            echo ""
+            echo "VoxFree upgraded to $(cat $SHARE/VERSION 2>/dev/null || echo unknown)."
+            echo "Runtime scripts updated. No reconfiguration needed."
+            echo "Run 'voxfree --doctor' to verify."
+            echo ""
+        fi
+        ;;
+esac

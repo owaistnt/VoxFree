@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+case "$1" in
+    purge)
+        # Remove all system-level VoxFree traces
+        rm -rf /usr/share/voxfree/
+        rm -rf /etc/voxfree/
+        sed -i '/^HF_HOME\|^HF_HUB_DISABLE_TELEMETRY\|^HF_HUB_OFFLINE/d' /etc/environment 2>/dev/null || true
+        rm -f /etc/udev/rules.d/99-uinput.rules && udevadm trigger 2>/dev/null || true
+        rm -f /etc/dconf/db/local.d/00-voice-shortcuts && dconf update 2>/dev/null || true
+        sed -i '/system-db:local/d' /etc/dconf/profile/user 2>/dev/null || true
+
+        echo ""
+        echo "VoxFree purged."
+        echo "The following were RETAINED (remove manually if desired):"
+        echo "  /opt/openai-whisper/     (whisper venv, ~520MB)"
+        echo "  /var/cache/huggingface/  (model cache, ~145MB)"
+        echo "  input group membership for users"
+        echo ""
+        echo "To remove them: sudo rm -rf /opt/openai-whisper /var/cache/huggingface"
+        ;;
+esac

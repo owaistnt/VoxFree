@@ -1,0 +1,28 @@
+Package: voxfree
+Version: 0.1.0
+Architecture: all
+Maintainer: VoxFree Project <voxfree@example.com>
+Installed-Size: 200
+Depends: bash (>= 5.0), wl-clipboard, alsa-utils, libnotify-bin, wev, python3-venv, ffmpeg, sox, libsox-fmt-all
+Recommends: xdotool, ydotool, speech-dispatcher
+Suggests: mycroft-mimic3-tts
+Section: utils
+Priority: optional
+Homepage: https://github.com/owaisforandroid/VoxFree
+Description: Offline voice tools for Ubuntu 24.04 GNOME/Wayland
+ VoxFree provides two offline voice features for the GNOME desktop:
+ .
+  * ReadLoud (TTS): Highlight any text and press F9 to hear it read
+    aloud using Mycroft Mimic 3 neural text-to-speech. Press F9 again
+    to stop. Change voice with: voxfree --voice
+ .
+  * SpeakToType (STT): Press F10 to start recording, speak, press F11
+    to stop. Your words are transcribed by OpenAI Whisper (base.en,
+    offline, ~2s) and pasted at the cursor via ydotool.
+ .
+ All processing is local. No cloud APIs, no internet required after
+ initial setup. Works on Ubuntu 24.04 with GNOME on Wayland.
+ .
+ Note: mycroft-mimic3-tts is not in Ubuntu repositories. Install it
+ separately from https://github.com/MycroftAI/mimic3/releases or run
+ 'sudo voxfree --install' after installation.
