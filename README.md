@@ -6,6 +6,20 @@ Press a key to hear any text read aloud. Press a key to speak and have your word
 
 ---
 
+## A Note to the Community
+
+VoxFree is my first open-source project for Ubuntu. I built it because I wanted reliable, offline voice tools for my own machine and could not find anything that worked out of the box on GNOME/Wayland without cloud dependencies.
+
+I am not a seasoned Linux systems developer. This project was built with a lot of research, experimentation, and the help of AI agents to reason through the moving parts — audio routing, Wayland input simulation, GNOME shortcut registration, Whisper inference, and packaging. The tools work well on my machine and I have tried to make the install experience reproducible, but there are many components that need to cooperate and not every hardware or software configuration has been tested.
+
+**If something breaks, I sincerely ask for your patience and kindness.** Every bug report is genuinely useful — it helps narrow down the configurations that need fixing and makes the project better for everyone. Please open an issue and describe what failed; I will do my best to address it.
+
+> **Report bugs:** [github.com/owaisidris/VoxFree/issues](https://github.com/owaisidris/VoxFree/issues)
+
+The long-term goal is to make the Linux desktop feel more immersive and accessible through voice — where reading and dictating feel as natural as typing. VoxFree is a small step toward that.
+
+---
+
 ## Sub-projects
 
 ### 🔊 ReadLoud — Text-to-Speech
@@ -32,6 +46,51 @@ Press **F10** to start recording, speak, press **F11** to stop — your words ap
 - **System-wide:** all users, shared model cache in /var/cache/huggingface/
 
 → [SpeakToType documentation](SpeakToType/speak-to-type.md)
+
+---
+
+## Dependencies
+
+VoxFree orchestrates several existing open-source tools. `deps.sh` (called automatically by `install.sh`) handles installation, but here is what gets installed and where to learn more about each component.
+
+### Text-to-Speech — ReadLoud
+
+| Tool | Purpose | Source |
+|------|---------|--------|
+| **Mycroft Mimic 3** | Neural TTS engine, runs fully offline | [github.com/MycroftAI/mimic3](https://github.com/MycroftAI/mimic3) |
+| **aplay** | ALSA audio playback (part of `alsa-utils`) | `sudo apt install alsa-utils` |
+| **wl-paste** | Reads highlighted text from Wayland primary selection | `sudo apt install wl-clipboard` |
+| **speech-dispatcher** | Audio routing layer (configured for local/direct mode) | `sudo apt install speech-dispatcher` |
+
+**Installing Mimic 3 separately:**
+```bash
+pip install mycroft-mimic3-tts[all]
+mimic3 --voice en_UK/apope_low "Hello"   # test it
+```
+Voices are downloaded on first use and cached locally. Browse available voices with `mimic3 --list-voices`.
+
+### Speech-to-Text — SpeakToType
+
+| Tool | Purpose | Source |
+|------|---------|--------|
+| **whisper-ctranslate2** | Fast Whisper inference using CTranslate2 (4× faster than original) | [github.com/Softcatala/whisper-ctranslate2](https://github.com/Softcatala/whisper-ctranslate2) |
+| **arecord** | ALSA audio capture via PipeWire bridge | `sudo apt install alsa-utils` |
+| **sox** | Noise reduction applied before transcription | `sudo apt install sox` |
+| **ydotool** | Wayland-native keyboard input simulation via `/dev/uinput` | `sudo apt install ydotool` |
+| **wl-copy** | Writes transcribed text to clipboard | `sudo apt install wl-clipboard` |
+
+**Installing whisper-ctranslate2 separately:**
+```bash
+pip install whisper-ctranslate2
+whisper-ctranslate2 audio.wav --model base.en   # test it
+```
+The `base.en` model (~150MB) is downloaded on first use to `/var/cache/huggingface/` (system install) or `~/.cache/huggingface/` (user install).
+
+> **Why whisper-ctranslate2 instead of openai-whisper?** CTranslate2 int8 quantisation gives ~4× faster inference and uses ~300MB of disk vs ~2GB, with negligible accuracy difference for short dictation.
+
+### Why No GPU Required?
+
+Both engines run on CPU. Mimic 3 uses a lightweight neural vocoder; Whisper `base.en` with int8 quantisation transcribes a 5-second clip in ~2 seconds on a modern CPU.
 
 ---
 
