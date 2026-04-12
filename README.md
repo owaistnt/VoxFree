@@ -210,6 +210,64 @@ bash voxfree-doctor.sh --stt    # check SpeakToType only
 
 ---
 
+## CLI Commands
+
+After installation, the `voxfree` command is available system-wide.
+
+### `voxfree --version`
+
+Shows the installed version:
+
+```
+$ voxfree --version
+VoxFree 0.1.1
+```
+
+### `voxfree --voice`
+
+Interactive voice selector for ReadLoud. Lists all available English voices from Mimic 3, shows which are installed locally and which require a download, and marks the current active voice:
+
+```
+  VoxFree — Voice Selector
+  ────────────────────────
+
+  Available English voices (★ = current, ✔ = installed):
+
+  en_UK:
+  ★ ✔   1) en_UK/apope_low
+    ↓   2) en_UK/semaine
+    ↓   3) en_UK/southern_english_female_low
+
+  en_US:
+    ✔   4) en_US/cmu-arctic_low
+    ↓   5) en_US/hifi-tts_low
+    ↓   6) en_US/ljspeech_low
+
+  ✔ = installed locally   ↓ = download required   ★ = current
+
+  Enter number to select (or q to quit):
+```
+
+Selecting a voice that is not yet installed downloads it automatically. The choice is saved to `~/.config/voxfree/voice` and takes effect immediately — no restart needed.
+
+```bash
+voxfree --voice    # run the selector
+```
+
+**Voice config priority:** user config (`~/.config/voxfree/voice`) → system config (`/etc/voxfree/voice`) → built-in default (`en_UK/apope_low`).
+
+### All commands
+
+```
+voxfree --install [--tts|--stt|--all] [--user]   Install or reconfigure
+voxfree --uninstall [--purge] [--user]            Remove VoxFree
+voxfree --doctor [--tts|--stt] [--fix]            Health check
+voxfree --voice                                   Change TTS voice
+voxfree --version                                 Show version
+```
+
+---
+
 ## Keyboard Shortcuts
 
 ### Lenovo ThinkPad (verified on Ubuntu 24.04 via `wev`)
