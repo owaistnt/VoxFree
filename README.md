@@ -1,5 +1,9 @@
 # VoxFree
 
+![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
+![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Ubuntu%2024.04%20GNOME%2FWayland-orange.svg)
+
 **Offline voice tools for Ubuntu 24.04 GNOME/Wayland.**
 
 Press a key to hear any text read aloud. Press a key to speak and have your words typed anywhere. No internet, no cloud APIs, no subscriptions. Everything runs locally on your machine.
