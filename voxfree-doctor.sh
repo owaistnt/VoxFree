@@ -431,7 +431,7 @@ check_shortcut "voxfree-stop-all"   "/usr/local/bin/voxfree-stop-all"    "Stop A
 
 # wev (for keysym detection)
 if command -v wev >/dev/null 2>&1; then
-    ok "wev installed (ThinkPad keysym detection)"
+    ok "wev installed (keysym detection for ThinkPad keyboards)"
 else
     warn "wev not installed — can't verify ThinkPad key names"
     fix "sudo apt install wev"

@@ -4,8 +4,8 @@
 # Offline voice tools for Ubuntu 24.04 GNOME/Wayland
 # =============================================================================
 # Sub-projects:
-#   ReadLoud    — Text-to-Speech: highlight text → press F9 → hear it read
-#   SpeakToType — Speech-to-Text: press F10 → speak → press F11 → types at cursor
+#   ReadLoud    — Text-to-Speech: highlight text → press F9 / Super+Shift+R → hear it read
+#   SpeakToType — Speech-to-Text: press F10 / Super+Shift+M → speak → press F11 / Super+Shift+K → types at cursor
 #
 # Usage:
 #   sudo bash install.sh               (interactive)
@@ -103,8 +103,8 @@ if [ "$INSTALL_TTS" = false ] && [ "$INSTALL_STT" = false ] && [ "$POSTINST_MODE
     done
 
     printf "\n  ${BOLD}What to install:${RESET}\n\n"
-    printf "  1) ${BOLD}ReadLoud${RESET}    — Highlight text → F9 → hear it read aloud\n\n"
-    printf "  2) ${BOLD}SpeakToType${RESET} — F10 → speak → F11 → text at cursor\n\n"
+    printf "  1) ${BOLD}ReadLoud${RESET}    — Highlight text → F9 / Super+Shift+R → hear it read aloud\n\n"
+    printf "  2) ${BOLD}SpeakToType${RESET} — F10 / Super+Shift+M → speak → F11 / Super+Shift+K → text at cursor\n\n"
     printf "  3) ${BOLD}Both${RESET}\n\n"
 
     while true; do
@@ -196,6 +196,7 @@ case "\${1:-}" in
     --version|-v)  printf "VoxFree %s\n" "\$VERSION" ;;
     --doctor)      shift; exec bash "\$VOXFREE_HOME/voxfree-doctor.sh" "\$@" ;;
     --voice)       shift; exec bash "\$VOXFREE_HOME/voxfree-voice.sh" "\$@" ;;
+    --switch)      shift; exec bash "\$VOXFREE_HOME/voxfree-switch.sh" "\$@" ;;
     --install)     shift; exec bash "\$VOXFREE_HOME/install.sh" "\$@" ;;
     --uninstall)   shift; exec bash "\$VOXFREE_HOME/uninstall.sh" "\$@" ;;
     --help|-h|"")
@@ -205,11 +206,12 @@ case "\${1:-}" in
         printf "  --uninstall [--purge] [--user]           Remove VoxFree\n"
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
+        printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
-        printf "Keyboard shortcuts (ThinkPad):\n"
-        printf "  F9   — Read selected text aloud (voxfree-readloud)\n"
-        printf "  F10  — Start dictation (voxfree-dictate)\n"
-        printf "  F11  — Stop reading / Stop dictation\n\n"
+        printf "Keyboard shortcuts:\n"
+        printf "  F9   / Super+Shift+R  — Read selected text aloud (voxfree-readloud)\n"
+        printf "  F10  / Super+Shift+M  — Start dictation (voxfree-dictate)\n"
+        printf "  F11  / Super+Shift+K  — Stop reading / Stop dictation\n\n"
         ;;
     *)  printf "Unknown command: %s\nRun: voxfree --help\n" "\$1" >&2; exit 1 ;;
 esac
@@ -236,15 +238,15 @@ printf "${RESET}\n"
 
 if [ "$INSTALL_TTS" = true ]; then
     printf "${BOLD}ReadLoud (TTS):${RESET}\n"
-    printf "  ${CYAN}F9${RESET}  → Highlight text → press to read aloud  [press again to stop]\n"
-    printf "  ${CYAN}F11${RESET} → Force-stop at any time\n\n"
+    printf "  ${CYAN}F9 / Super+Shift+R${RESET}  → Highlight text → press to read aloud  [press again to stop]\n"
+    printf "  ${CYAN}F11 / Super+Shift+K${RESET} → Force-stop at any time\n\n"
 fi
 
 if [ "$INSTALL_STT" = true ]; then
     printf "${BOLD}SpeakToType (STT):${RESET}\n"
-    printf "  ${CYAN}F10${RESET} → Press to START recording (mic LED turns OFF)\n"
+    printf "  ${CYAN}F10 / Super+Shift+M${RESET} → Press to START recording (mic LED turns OFF)\n"
     printf "  Speak clearly for 2+ seconds\n"
-    printf "  ${CYAN}F11${RESET} → Press to STOP → transcribes → pastes at cursor\n\n"
+    printf "  ${CYAN}F11 / Super+Shift+K${RESET} → Press to STOP → transcribes → pastes at cursor\n\n"
     printf "  ${YELLOW}IMPORTANT:${RESET} Log out and back in to activate ydotool auto-paste.\n"
     printf "  Until then, text is in clipboard — press Ctrl+V manually.\n\n"
 fi

@@ -1,6 +1,6 @@
 # Speak to Type — Speech-to-Text (STT) for Ubuntu 24.04
 
-Press **F10** → speak → press **F11** → your words appear at the cursor.
+Press **F10** (ThinkPad) / **Super+Shift+M** (Standard) → speak → press **F11** / **Super+Shift+K** (Standard) → your words appear at the cursor.
 Fully offline. No cloud APIs. Works on GNOME Wayland with all apps.
 
 ---
@@ -8,7 +8,7 @@ Fully offline. No cloud APIs. Works on GNOME Wayland with all apps.
 ## How It Works
 
 ```
-Press F10
+Press F10 / Super+Shift+M
     ↓
 Mic unmuted automatically (ThinkPad LED turns OFF = recording active)
     ↓
@@ -18,7 +18,7 @@ arecord captures mic at 16kHz mono via ALSA → pipewire-alsa
     ↓
 Speak for as long as needed (no time limit)
     ↓
-Press F11
+Press F11 / Super+Shift+K
     ↓
 GNOME sound plays (complete.oga) ← "processing"
 arecord stops, WAV file finalised
@@ -54,7 +54,7 @@ sudo bash install.sh --stt
 # Log out and log back in
 # (required for ydotool auto-paste to activate)
 
-# Test: open any app, click inside, press F10, speak, press F11
+# Test: open any app, click inside, press F10 / Super+Shift+M, speak, press F11 / Super+Shift+K
 ```
 
 ---
@@ -70,7 +70,7 @@ sudo bash install.sh --stt
 
 > **F10 and F11 are separate keys** (not a toggle). This is intentional — using a single key caused a race condition where key repeat events would start multiple recordings simultaneously.
 
-F11 is handled by `voxfree-stop-all`, which detects an active recording and delegates to `voxfree-dictate-stop` for stop + transcribe + paste. If TTS was also playing, it stops that first.
+F11 / Super+Shift+K is handled by `voxfree-stop-all`, which detects an active recording and delegates to `voxfree-dictate-stop` for stop + transcribe + paste. If TTS was also playing, it stops that first.
 
 ### Standard (any Linux/GNOME machine)
 
@@ -78,6 +78,8 @@ F11 is handled by `voxfree-stop-all`, which detects an active recording and dele
 |----------|--------|
 | **Super+Shift+M** | Start recording |
 | **Super+Shift+K** | Stop recording → transcribe → paste |
+
+> Switch layouts after install: `voxfree --switch thinkpad` or `voxfree --switch standard`
 
 ---
 
@@ -146,7 +148,7 @@ sudo chmod -R a+rX /var/cache/huggingface
 
 ## Scripts
 
-### `/usr/local/bin/voxfree-dictate` (bound to F10)
+### `/usr/local/bin/voxfree-dictate` (bound to F10 / Super+Shift+M)
 1. Checks if already recording — if yes, shows "Already recording" and exits (prevents key-repeat race condition)
 2. Auto-detects PipeWire session socket (works even when `XDG_RUNTIME_DIR` is not set in GNOME shortcut context)
 3. Unmutes microphone
@@ -155,7 +157,7 @@ sudo chmod -R a+rX /var/cache/huggingface
 6. Saves PID to `/tmp/stt-recording.pid`
 7. Shows "🔴 REC — Speak now!" notification
 
-### `/usr/local/bin/voxfree-dictate-stop` (called by F11 via voxfree-stop-all)
+### `/usr/local/bin/voxfree-dictate-stop` (called by F11 / Super+Shift+K via voxfree-stop-all)
 1. Reads PID from `/tmp/stt-recording.pid` — exits early if not recording
 2. Checks recording is ≥1 second (32 000 bytes at 16kHz); rejects too-short recordings
 3. Sends SIGTERM to arecord → WAV file finalised
@@ -167,7 +169,7 @@ sudo chmod -R a+rX /var/cache/huggingface
 9. Smart paste: detects focused window class; uses `ctrl+shift+v` for terminals, `ctrl+v` for all other apps
 10. Paste via ydotool → fallback xdotool → clipboard notification
 
-### `/usr/local/bin/voxfree-stop-all` (bound to F11)
+### `/usr/local/bin/voxfree-stop-all` (bound to F11 / Super+Shift+K)
 - Stops TTS (mimic3 + aplay) if running
 - If STT recording is active: calls `voxfree-dictate-stop` so the audio is transcribed
 - If nothing is running: shows "Nothing active."
@@ -190,7 +192,7 @@ System-wide dconf at `/etc/dconf/db/local.d/00-voice-shortcuts` applies to all u
 ## Troubleshooting
 
 ### Text pasted but wrong words / hallucinations ("You", "So", numbers)
-Recording is too short (< 1 second). Press F10, wait for start sound, **then** speak.
+Recording is too short (< 1 second). Press F10 / Super+Shift+M, wait for start sound, **then** speak.
 ```bash
 # Check last recording length
 sox /tmp/last-stt-recording.wav -n stat 2>&1 | grep Length
@@ -214,13 +216,13 @@ groups | grep input    # should show 'input'
 ```
 If `input` is not shown → **log out and log back in**.
 
-### Recording doesn't stop on F11
+### Recording doesn't stop on F11 / Super+Shift+K
 Check PID file exists:
 ```bash
 cat /tmp/stt-recording.pid
 pgrep -a arecord
 ```
-If no PID file → no recording is active. Press F10 to start a new one.
+If no PID file → no recording is active. Press F10 / Super+Shift+M to start a new one.
 
 ### Shortcut doesn't fire at all
 ```bash
@@ -246,9 +248,9 @@ HF_HUB_DISABLE_TELEMETRY=1
 
 | File | Location | Purpose |
 |------|----------|---------|
-| `voxfree-dictate` | `/usr/local/bin/` | F10 — start recording |
+| `voxfree-dictate` | `/usr/local/bin/` | F10 / Super+Shift+M — start recording |
 | `voxfree-dictate-stop` | `/usr/local/bin/` | Stop, transcribe, paste |
-| `voxfree-stop-all` | `/usr/local/bin/` | F11 — stop all voice (delegates to dictate-stop if recording) |
+| `voxfree-stop-all` | `/usr/local/bin/` | F11 / Super+Shift+K — stop all voice (delegates to dictate-stop if recording) |
 | `whisper` | `/usr/local/bin/` | Symlink to whisper-ctranslate2 |
 | `openai-whisper/` | `/opt/` | Python venv with whisper-ctranslate2 |
 | `base.en model` | `/var/cache/huggingface/hub/` | Shared model cache (all users) |

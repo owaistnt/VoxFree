@@ -1,6 +1,6 @@
 # ReadLoud — Text-to-Speech (TTS) for Ubuntu 24.04
 
-Highlight any text → press **F9** → hear it read aloud. Press **F9** again to stop.
+Highlight any text → press **F9** (ThinkPad) / **Super+Shift+R** (Standard) → hear it read aloud. Press the same key again to stop.
 Fully offline. No cloud APIs. Works on GNOME Wayland.
 
 ---
@@ -10,7 +10,7 @@ Fully offline. No cloud APIs. Works on GNOME Wayland.
 ```
 Highlight text anywhere (browser, PDF, terminal, document)
     ↓
-Press F9
+ Press F9 / Super+Shift+R
     ↓
 wl-paste reads Wayland primary selection (what you highlighted)
     ↓
@@ -20,8 +20,8 @@ aplay plays audio through speakers
     ↓
 Notification: "Reading: first 60 chars of text..."
 
-Press F9 again while speaking → stops immediately → "Stopped."
-Press F11 (Cancel) → stops TTS immediately; if STT was recording, transcribes first
+Press F9 / Super+Shift+R again while speaking → stops immediately → "Stopped."
+Press F11 (Cancel) / Super+Shift+K → stops TTS immediately; if STT was recording, transcribes first
 ```
 
 ---
@@ -49,7 +49,7 @@ sudo bash install.sh --all
 | **F9** (✉ message icon) | `XF86Messenger` | Read selected text / Stop reading (toggle) |
 | **F11** (✕ cancel icon) | `Cancel` | Stop all voice activity |
 
-> F9 works as a toggle — same key starts and stops. F11 is the universal stop: kills TTS immediately, and if STT dictation was recording it stops and transcribes before exiting.
+> F9 / Super+Shift+R works as a toggle — same key starts and stops. F11 / Super+Shift+K is the universal stop: kills TTS immediately, and if STT dictation was recording it stops and transcribes before exiting.
 
 ### Standard (any Linux/GNOME machine)
 
@@ -57,6 +57,8 @@ sudo bash install.sh --all
 |----------|--------|
 | **Super+Shift+R** | Read selected text / Stop (toggle) |
 | **Super+Shift+K** | Stop all voice activity |
+
+> Switch layouts after install: `voxfree --switch thinkpad` or `voxfree --switch standard`
 
 ---
 
@@ -144,7 +146,7 @@ pgrep -a gsd-media-keys
 
 ### Wrong ThinkPad keysym
 ```bash
-wev    # press F9, read the 'sym' field
+wev    # press F9 or Super+Shift+R, read the 'sym' field
 # Update /etc/dconf/db/local.d/00-voice-shortcuts then:
 sudo dconf update
 ```
@@ -155,9 +157,9 @@ sudo dconf update
 
 | File | Location | Purpose |
 |------|----------|---------|
-| `voxfree-readloud` | `/usr/local/bin/` | TTS toggle script (F9) |
+| `voxfree-readloud` | `/usr/local/bin/` | TTS toggle script (F9 / Super+Shift+R) |
 | `voxfree-readloud-stop` | `/usr/local/bin/` | Force-stop TTS |
-| `voxfree-stop-all` | `/usr/local/bin/` | Stop all voice (F11): TTS + STT |
+| `voxfree-stop-all` | `/usr/local/bin/` | Stop all voice (F11 / Super+Shift+K): TTS + STT |
 | `mimic3` | `/usr/bin/` | TTS engine binary |
 | `en_UK/apope_low` | `/usr/share/mycroft/mimic3/voices/` | Default voice model |
 | `mimic3-generic.conf` | `/etc/speech-dispatcher/modules/` | Local mode config |

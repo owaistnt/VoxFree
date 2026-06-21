@@ -22,8 +22,8 @@ case "$1" in
         # installed via 'install.sh --user' — prevents shortcut path mismatch on
         # .deb upgrades (shortcuts point to ~/.local/bin/ but only /usr/local/bin/
         # gets updated otherwise).
-        for UID in /run/user/*; do
-            USERID="${UID#/run/user/}"
+        for RUNID in /run/user/*; do
+            USERID="${RUNID#/run/user/}"
             UHOME=$(getent passwd "$USERID" 2>/dev/null | cut -d: -f6)
             [ -z "$UHOME" ] && continue
             for F in \

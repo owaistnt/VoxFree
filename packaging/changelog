@@ -1,3 +1,24 @@
+voxfree (0.3.1) unstable; urgency=medium
+
+  * docs: present both ThinkPad (F9/F10/F11) and Standard (Super+Shift+R/M/K)
+    shortcuts throughout all documentation and user-facing messages
+  * docs: fix wrong Ctrl+Alt+S shortcut in voxfree-stop-all.sh comment
+    (correct: Super+Shift+K)
+  * new: voxfree --switch [thinkpad|standard] — switch keyboard shortcut
+    layout after install without re-running full installer
+  * new: lib/keyboard-layout.sh — shared helper for layout persistence
+  * new: voxfree-switch.sh — layout switching implementation with multi-user
+    session propagation (system mode iterates /run/user/*)
+  * new: layout persistence — readloud.sh and speak-to-type.sh save the
+    chosen layout to config so voxfree --switch knows the current state
+  * runtime: all notify-send messages now show both shortcuts (e.g. "F9 or
+    Super+Shift+R") so users always know their options
+  * docs: update README.md, readloud.md, speak-to-type.md, architecture.md,
+    building-blocks.md, CLAUDE.md with both layouts everywhere
+  * CLI: voxfree --switch added to help text and voxfree wrapper
+
+  -- VoxFree Project <voxfree@example.com>  Mon, 22 Jun 2026 00:00:00 +0530
+
 voxfree (0.1.1) unstable; urgency=medium
 
   * fix: F11 (voxfree-stop-all) now delegates to voxfree-dictate-stop when

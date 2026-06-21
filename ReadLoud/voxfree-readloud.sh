@@ -35,7 +35,7 @@ fi
 TEXT=$(wl-paste --primary --no-newline 2>/dev/null)
 
 if [ -z "$TEXT" ]; then
-    notify-send "VoxFree" "No text selected.\nHighlight text with your mouse, then press F9." \
+    notify-send "VoxFree" "No text selected.\nHighlight text with your mouse, then press F9 or Super+Shift+R." \
         -i dialog-information -t 3000 2>/dev/null
     exit 1
 fi

@@ -5,7 +5,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         User Actions                             │
-│  Highlight text → F9     F10 (start)     F11 (stop/paste)       │
+│  Highlight text → F9 / Super+Shift+R     F10 / Super+Shift+M (start)     F11 / Super+Shift+K (stop/paste)       │
 └──────────────┬────────────────┬────────────────┬────────────────┘
                │                │                │
                ▼                ▼                ▼
@@ -16,7 +16,7 @@
             │                 │                  │
             ▼                 ▼                  ▼
    voxfree-readloud    voxfree-dictate    voxfree-stop-all
-   (F9 toggle TTS)     (F10 start STT)   (F11 stop everything)
+   (F9 / Super+Shift+R toggle TTS)     (F10 / Super+Shift+M start STT)   (F11 / Super+Shift+K stop everything)
             │                 │                  │
             │                 │         if STT recording active:
             │                 │                  ▼
@@ -57,10 +57,10 @@
 /usr/local/bin/
   voxfree                  ← unified CLI dispatcher
   voxfree-doctor           ← health checker (wrapper)
-  voxfree-readloud         ← TTS toggle (F9)
+  voxfree-readloud         ← TTS toggle (F9 / Super+Shift+R)
   voxfree-readloud-stop    ← TTS force-stop
-  voxfree-stop-all         ← stop all voice (F11): TTS + delegates STT to dictate-stop
-  voxfree-dictate          ← STT start recording (F10)
+  voxfree-stop-all         ← stop all voice (F11 / Super+Shift+K): TTS + delegates STT to dictate-stop
+  voxfree-dictate          ← STT start recording (F10 / Super+Shift+M)
   voxfree-dictate-stop     ← STT stop + transcribe + paste (called by stop-all)
   whisper                  ← symlink to whisper-ctranslate2
 
@@ -135,7 +135,7 @@ voxfree-readloud reads voice in this order:
 ## Keyboard Shortcut Flow
 
 ```
-User presses F9 (XF86Messenger)
+User presses F9 (XF86Messenger) / Super+Shift+R
      │
      ▼
 gsd-media-keys → /usr/local/bin/voxfree-readloud
@@ -150,7 +150,7 @@ voxfree-readloud:
   - saves background PID to /tmp/voxfree-readloud.pid
   - shows "Reading: ..." notification
 
-User presses F10 (XF86Go)
+User presses F10 (XF86Go) / Super+Shift+M
      │
      ▼
 gsd-media-keys → /usr/local/bin/voxfree-dictate
@@ -164,7 +164,7 @@ voxfree-dictate:
   - saves PID to /tmp/stt-recording.pid
   - shows "🔴 REC — Speak now!" notification
 
-User presses F11 (Cancel)
+User presses F11 (Cancel) / Super+Shift+K
      │
      ▼
 gsd-media-keys → /usr/local/bin/voxfree-stop-all

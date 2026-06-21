@@ -98,7 +98,7 @@ Mic → arecord → WAV → sox noisered → whisper base.en → text → wl-cop
 
 **Key socket:** `/run/user/UID/pulse/native` — the PulseAudio-compatible socket for PipeWire. This is what `sox -d` fails to find when run from gsd-media-keys. `arecord` doesn't need this socket.
 
-**Common failure:** F10 recording fails → check `PULSE_SERVER` env var isn't set to wrong path. `voxfree-doctor` checks the active session automatically.
+**Common failure:** F10 / Super+Shift+M recording fails → check `PULSE_SERVER` env var isn't set to wrong path. `voxfree-doctor` checks the active session automatically.
 
 ---
 
@@ -114,7 +114,7 @@ Mic → arecord → WAV → sox noisered → whisper base.en → text → wl-cop
 
 The `0.15` is the sensitivity threshold — higher = more aggressive noise removal (but can distort speech).
 
-**Why 0.5 seconds:** The GNOME notification sound plays first, then VoxFree starts recording. The user naturally doesn't speak for ~0.5s after pressing F10, giving clean noise reference.
+**Why 0.5 seconds:** The GNOME notification sound plays first, then VoxFree starts recording. The user naturally doesn't speak for ~0.5s after pressing F10 / Super+Shift+M, giving clean noise reference.
 
 **Common failure:** If `libsox-fmt-all` is missing, `sox` can't read/write certain formats. Fix: `sudo apt install libsox-fmt-all`.
 
@@ -189,4 +189,4 @@ The `0.15` is the sensitivity threshold — higher = more aggressive noise remov
 
 **Why start via `.target` not directly:** gsd-media-keys must be started by the systemd user session to have permission to grab keys from the compositor. Direct start (`/usr/libexec/gsd-media-keys`) fails with "GrabAccelerators is not allowed". Correct start: `systemctl --user start org.gnome.SettingsDaemon.MediaKeys.target`.
 
-**Common failure:** F9/F10/F11 don't fire → gsd-media-keys not running. Fix: `systemctl --user start org.gnome.SettingsDaemon.MediaKeys.target`. Check with `pgrep -a gsd-media-keys`.
+**Common failure:** F9 / Super+Shift+R, F10 / Super+Shift+M, or F11 / Super+Shift+K don't fire → gsd-media-keys not running. Fix: `systemctl --user start org.gnome.SettingsDaemon.MediaKeys.target`. Check with `pgrep -a gsd-media-keys`.

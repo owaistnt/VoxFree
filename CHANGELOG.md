@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.1] — 2026-06-22
+
+### Added
+- **`voxfree --switch [thinkpad|standard]`** — Switch keyboard shortcut layout after install without re-running the full installer. System mode propagates to all active user sessions.
+- **Layout persistence** — `lib/keyboard-layout.sh` stores the chosen layout in config. `readloud.sh` and `speak-to-type.sh` save the choice after applying shortcuts.
+- **Dual shortcut display** — All runtime `notify-send` messages now show both shortcuts (e.g. "press F9 or Super+Shift+R") so users always know their options regardless of layout.
+
+### Fixed
+- **Wrong shortcut in comment** — `voxfree-stop-all.sh` listed `Ctrl+Alt+S` (not bound) instead of `Super+Shift+K`.
+- **Documentation only showed ThinkPad** — All docs now present both layouts equally: ThinkPad (F9/F10/F11) and Standard (Super+Shift+R/M/K).
+
+### Improved
+- Documentation: `README.md`, `readloud.md`, `speak-to-type.md`, `docs/architecture.md`, `docs/building-blocks.md`, `CLAUDE.md` all updated with both layouts.
+
 ## [0.1.1] — 2026-04-12
 
 ### Fixed

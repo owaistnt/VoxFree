@@ -28,7 +28,7 @@ The long-term goal is to make the Linux desktop feel more immersive and accessib
 
 ### 🔊 ReadLoud — Text-to-Speech
 
-Highlight any text on screen and press **F9** to hear it read aloud. Press **F9** again to stop.
+Highlight any text on screen and press **F9** (ThinkPad) / **Super+Shift+R** (Standard) to hear it read aloud. Press the same key again to stop.
 
 - **Engine:** Mycroft Mimic 3 (neural TTS, offline)
 - **Voice:** en_UK/apope_low (British English) — more voices downloadable
@@ -41,7 +41,7 @@ Highlight any text on screen and press **F9** to hear it read aloud. Press **F9*
 
 ### 🎙 SpeakToType — Speech-to-Text
 
-Press **F10** to start recording, speak, press **F11** to stop — your words appear at the cursor.
+Press **F10** (ThinkPad) / **Super+Shift+M** (Standard) to start recording, speak, press **F11** / **Super+Shift+K** (Standard) to stop — your words appear at the cursor.
 
 - **Engine:** OpenAI Whisper base.en + int8 quantisation (~2s transcription)
 - **Recording:** arecord (ALSA/pipewire-alsa, reliable from GNOME shortcuts)
@@ -210,7 +210,7 @@ bash voxfree-doctor.sh --stt    # check SpeakToType only
 | **System** | Ubuntu version, Wayland session, PipeWire running |
 | **ReadLoud** | mimic3 binary, voice model, speech-dispatcher config (local mode), aplay, wl-paste, scripts, live TTS audio test |
 | **SpeakToType** | arecord, sox, whisper symlink, whisper-ctranslate2 venv, base.en model, model permissions, HF_HOME env var, HF_HUB_OFFLINE not blocking downloads, ydotool, input group, /dev/uinput, xdotool, wl-copy, mic unmuted, live recording test, scripts |
-| **GNOME Shortcuts** | gsd-media-keys daemon, dconf profile, shortcuts file, F9/F10/F11 bindings, wev |
+| **GNOME Shortcuts** | gsd-media-keys daemon, dconf profile, shortcuts file, keyboard shortcut bindings, wev |
 
 ---
 
@@ -267,6 +267,7 @@ voxfree --install [--tts|--stt|--all] [--user]   Install or reconfigure
 voxfree --uninstall [--purge] [--user]            Remove VoxFree
 voxfree --doctor [--tts|--stt] [--fix]            Health check
 voxfree --voice                                   Change TTS voice
+voxfree --switch [thinkpad|standard]              Switch keyboard shortcut layout
 voxfree --version                                 Show version
 ```
 
@@ -313,11 +314,11 @@ Uses `Super+Shift` combinations — confirmed free on all standard GNOME/Ubuntu 
 ┌─────────────────────────────────────────────────────────┐
 │                     GNOME Desktop                        │
 │                                                          │
-│  F9 pressed              F10 pressed        F11 pressed   │
-│       ↓                       ↓                  ↓        │
-│  gsd-media-keys          gsd-media-keys    gsd-media-keys │
-│       ↓                       ↓                  ↓        │
-│  voxfree-readloud     voxfree-dictate    voxfree-stop-all │
+│  F9 / Super+Shift+R pressed    F10 / Super+Shift+M pressed    F11 / Super+Shift+K pressed   │
+│       ↓                               ↓                              ↓        │
+│  gsd-media-keys                 gsd-media-keys                 gsd-media-keys │
+│       ↓                               ↓                              ↓        │
+│  voxfree-readloud             voxfree-dictate                voxfree-stop-all │
 │       ↓                       ↓            (stops TTS or  │
 │  wl-paste --primary   arecord -D default   delegates to   │
 │  (highlighted text)   (ALSA/pipewire-alsa) dictate-stop)  │
@@ -356,14 +357,14 @@ VoxFree/
 ├── ReadLoud/
 │   ├── readloud.sh              ← TTS installer (called by install.sh)
 │   ├── readloud.md              ← TTS full documentation
-│   ├── voxfree-readloud.sh      ← F9: read selected text aloud (toggle)
+│   ├── voxfree-readloud.sh      ← F9 / Super+Shift+R: read selected text aloud (toggle)
 │   ├── voxfree-readloud-stop.sh ← force-stop TTS at any time
-│   └── voxfree-stop-all.sh      ← F11: stop all voice (TTS + STT)
+│   └── voxfree-stop-all.sh      ← F11 / Super+Shift+K: stop all voice (TTS + STT)
 │
 └── SpeakToType/
     ├── speak-to-type.sh         ← STT installer (called by install.sh)
     ├── speak-to-type.md         ← STT full documentation
-    ├── voxfree-dictate.sh       ← F10: start microphone recording
+    ├── voxfree-dictate.sh       ← F10 / Super+Shift+M: start microphone recording
     └── voxfree-dictate-stop.sh  ← stop recording → transcribe → paste
 ```
 
@@ -401,7 +402,7 @@ groups | grep input   # if 'input' not shown → log out and back in
 ```
 
 **Wrong words / hallucinations:**
-Recording too short — wait for the F10 start sound before speaking.
+Recording too short — wait for the start sound before speaking.
 ```bash
 sox /tmp/last-stt-recording.wav -n stat 2>&1 | grep Length
 # Should be 2+ seconds

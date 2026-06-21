@@ -1,7 +1,7 @@
 #!/bin/bash
 # voxfree-stop-all — Stop all active VoxFree voice activity
 # Stops both TTS (reading) and STT (dictation) if running.
-# Bound to: F11 (ThinkPad) or Ctrl+Alt+S (Standard)
+# Bound to: F11 (ThinkPad) or Super+Shift+K (Standard)
 
 SOUNDS="/usr/share/sounds/freedesktop/stereo"
 STOPPED=""

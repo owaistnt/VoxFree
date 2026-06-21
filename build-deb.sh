@@ -72,6 +72,7 @@ case "${1:-}" in
     --version|-v)  printf "VoxFree %s\n" "$VERSION" ;;
     --doctor)      shift; exec bash "$VOXFREE_HOME/voxfree-doctor.sh" "$@" ;;
     --voice)       shift; exec bash "$VOXFREE_HOME/voxfree-voice.sh" "$@" ;;
+    --switch)      shift; exec bash "$VOXFREE_HOME/voxfree-switch.sh" "$@" ;;
     --install)     shift; exec bash "$VOXFREE_HOME/install.sh" "$@" ;;
     --uninstall)   shift; exec bash "$VOXFREE_HOME/uninstall.sh" "$@" ;;
     --help|-h|"")
@@ -81,11 +82,12 @@ case "${1:-}" in
         printf "  --uninstall [--purge] [--user]           Remove VoxFree\n"
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
+        printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
-        printf "Keyboard shortcuts (ThinkPad):\n"
-        printf "  F9   — Read selected text aloud (voxfree-readloud)\n"
-        printf "  F10  — Start dictation (voxfree-dictate)\n"
-        printf "  F11  — Stop reading / Stop dictation\n\n"
+        printf "Keyboard shortcuts:\n"
+        printf "  F9   / Super+Shift+R  — Read selected text aloud (voxfree-readloud)\n"
+        printf "  F10  / Super+Shift+M  — Start dictation (voxfree-dictate)\n"
+        printf "  F11  / Super+Shift+K  — Stop reading / Stop dictation\n\n"
         ;;
     *)  printf "Unknown command: %s\nRun: voxfree --help\n" "$1" >&2; exit 1 ;;
 esac

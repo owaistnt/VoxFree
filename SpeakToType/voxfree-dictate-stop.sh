@@ -1,5 +1,5 @@
 #!/bin/bash
-# voxfree-dictate-stop — Stop recording, transcribe, paste (F11)
+# voxfree-dictate-stop — Stop recording, transcribe, paste
 
 WAVFILE="/tmp/stt-recording.wav"
 DEBUG_WAV="/tmp/last-stt-recording.wav"
@@ -10,7 +10,7 @@ RECORDING_WAV=$(ls -t /tmp/stt-recording-*.wav 2>/dev/null | head -1)
 
 # Not recording — nothing to stop
 if [ -z "$RECORDING_WAV" ] || ! fuser "$RECORDING_WAV" >/dev/null 2>&1; then
-    notify-send "VoxFree" "ℹ Not recording. Press F10 to start." \
+    notify-send "VoxFree" "ℹ Not recording. Press F10 or Super+Shift+M to start." \
         -i dialog-information -t 2000 2>/dev/null
     exit 0
 fi
@@ -23,7 +23,7 @@ if [ -f "$WAVFILE" ]; then
     # 16000 samples/s × 2 bytes = 32000 bytes/s → 1s = 32000 bytes
     if [ "$RECORDED_BYTES" -lt 32000 ]; then
         notify-send "VoxFree" \
-            "⚠ Too short! Keep F10 held down longer while speaking." \
+            "⚠ Too short! Press F10 or Super+Shift+M to start, then speak." \
             -i dialog-warning -t 3000 2>/dev/null
         pkill -TERM -f "arecord.*$(basename "$WAVFILE")" 2>/dev/null
         exit 0

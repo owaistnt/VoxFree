@@ -210,11 +210,14 @@ gs set "${GBASE}/voxfree-readloud/"      binding "$KEY_READ"
 gs set "${GBASE}/voxfree-readloud-stop/" name    'Stop Reading (VoxFree)'
 gs set "${GBASE}/voxfree-readloud-stop/" command "$BIN_DIR/voxfree-readloud-stop"
 gs set "${GBASE}/voxfree-readloud-stop/" binding "$KEY_STOP"
-ok "Shortcuts applied to current session"
+  ok "Shortcuts applied to current session"
 
 sudo -u "$ACTUAL_USER" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${USER_ID}/bus" \
     systemctl --user start org.gnome.SettingsDaemon.MediaKeys.target 2>/dev/null && \
     ok "gsd-media-keys started" || warn "Shortcuts will activate on next login"
+
+# Persist the chosen layout so voxfree --switch knows the current state
+CONF_DIR="$CONF_DIR" bash "$VOXFREE_DIR/lib/keyboard-layout.sh" write_keyboard_layout "$LAYOUT" 2>/dev/null || true
 }
 
 # ── Summary ───────────────────────────────────────────────────────────────────
