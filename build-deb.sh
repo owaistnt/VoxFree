@@ -40,7 +40,7 @@ mkdir -p "$STAGING/usr/local/bin"
 
 # ── Copy VoxFree scripts ──────────────────────────────────────────────────────
 # Root scripts
-for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-voice.sh VERSION; do
+for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-switch.sh voxfree-voice.sh VERSION; do
     [ -f "$SCRIPT_DIR/$F" ] && cp "$SCRIPT_DIR/$F" "$STAGING/usr/share/voxfree/"
 done
 
