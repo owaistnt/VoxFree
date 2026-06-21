@@ -84,7 +84,9 @@ PREVIEW="${TRANSCRIPT:0:60}"
 [ "${#TRANSCRIPT}" -gt 60 ] && PREVIEW="${PREVIEW}..."
 
 # Copy to clipboard (always — works for all apps)
-echo -n "$TRANSCRIPT" | wl-copy 2>/dev/null
+# Use -t text/plain to ensure text is recognized, preventing leftover image
+# clipboard data from being pasted as an image in the target app
+printf '%s' "$TRANSCRIPT" | wl-copy -t text/plain 2>/dev/null
 
 # Smart paste: detect if a terminal is focused and use correct paste key
 # Terminals use Ctrl+Shift+V; all other apps use Ctrl+V
