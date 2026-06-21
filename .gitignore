@@ -12,6 +12,9 @@ Thumbs.db
 # Build staging area (pre-built releases go in releases/ instead)
 dist/
 
+# Ignore releases except the .deb files themselves
+releases/!*.deb
+
 # Claude Code development files (not for public consumption)
 CLAUDE.md
 .claude/
