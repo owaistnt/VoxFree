@@ -15,7 +15,7 @@
 if [ -z "$BASH_VERSION" ]; then exec bash "$0" "$@"; fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-VOXFREE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+VOXFREE_DIR="$SCRIPT_DIR"
 
 # Determine if we're running as root/system or user
 if [ "$(id -u)" -eq 0 ]; then

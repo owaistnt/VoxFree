@@ -58,7 +58,9 @@ for F in speak-to-type.sh speak-to-type.md voxfree-dictate.sh voxfree-dictate-st
 done
 
 # lib/
-cp "$SCRIPT_DIR/lib/detect.sh" "$STAGING/usr/share/voxfree/lib/"
+for F in detect.sh keyboard-layout.sh; do
+    [ -f "$SCRIPT_DIR/lib/$F" ] && cp "$SCRIPT_DIR/lib/$F" "$STAGING/usr/share/voxfree/lib/"
+done
 
 # ── Create /usr/local/bin/ wrappers ──────────────────────────────────────────
 cat > "$STAGING/usr/local/bin/voxfree" << 'WRAPEOF'
