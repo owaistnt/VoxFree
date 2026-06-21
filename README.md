@@ -10,6 +10,153 @@ Press a key to hear any text read aloud. Press a key to speak and have your word
 
 ---
 
+> ⚠ **Prerequisites & Disclaimers:** VoxFree requires manual system configuration with `sudo` commands. See [Prerequisites](#prerequisites) and [Legal Disclaimer](#legal-disclaimer) before proceeding.
+
+---
+
+## Prerequisites
+
+VoxFree requires **Ubuntu 24.04 + GNOME + Wayland + PipeWire**. These must be set up *before* installing VoxFree.
+
+### System prerequisites
+
+| Requirement | How to check |
+|---|---|
+| Ubuntu 24.04 | `lsb_release -a` |
+| GNOME on Wayland | `echo $XDG_SESSION_TYPE` (must say `wayland`) |
+| PipeWire running | `systemctl --user is-active pipewire` (must say `active`) |
+
+### Install apt packages
+
+Run once before VoxFree:
+
+```bash
+sudo apt update
+sudo apt install -y \
+  pipewire pipewire-pulse \
+  alsa-utils \
+  sox libsox-fmt-all \
+  wl-clipboard xdotool ydotool \
+  python3-venv ffmpeg \
+  wev
+```
+
+### Add user to input group (for ydotool auto-paste)
+
+```bash
+sudo usermod -aG input $USER
+```
+
+> ⚠ **Log out and back in** after this step — ydotool will not work until relogin.
+
+### Configure udev rule (for ydotool auto-paste)
+
+```bash
+echo 'KERNEL=="uinput", GROUP="input", MODE="0660"' | sudo tee /etc/udev/rules.d/99-uinput.rules
+sudo udevadm trigger
+```
+
+### Install Mimic 3 (TTS engine)
+
+> **Auto-fixable:** VoxFree Doctor can download the voice model automatically. You only need to install the binary and configure speech-dispatcher.
+
+```bash
+# Option 1: pipx (recommended)
+sudo apt install pipx
+pipx ensurepath
+source ~/.bashrc
+pipx install mimic3
+mimic3-download --voice en_UK/apope_low
+
+# Option 2: .deb package
+wget https://github.com/MycroftAI/mimic3/releases/download/v0.2.4/mycroft-mimic3-tts_0.2.4_amd64.deb
+sudo dpkg -i mycroft-mimic3-tts_0.2.4_amd64.deb
+
+# Option 3: pip
+python3 -m pip install --user "mycroft-mimic3-tts[all]"
+```
+
+### Configure speech-dispatcher for Mimic 3
+
+```bash
+sudo apt install speech-dispatcher speech-dispatcher-audio-plugins
+
+# Create module config (local mode — no --remote flag)
+echo 'GenericExecuteSynth "mimic3 --voice en_UK/apope_low"
+AddVoice "en" "male1" "en_UK/apope_low"' | sudo tee /etc/speech-dispatcher/modules/mimic3-generic.conf
+
+# Set as default module
+sudo sed -i 's/^DefaultModule.*/DefaultModule mimic3-generic/' /etc/speech-dispatcher/speechd.conf
+sudo systemctl --user restart speech-dispatcher
+```
+
+Verify: `spd-say "Hello from Mimic 3"`
+
+### Install whisper-ctranslate2 (STT engine)
+
+> **Auto-fixable:** VoxFree Doctor can download the whisper model and set up the symlink automatically. You only need to create the Python virtual environment.
+
+```bash
+python3 -m venv ~/.local/share/voxfree/whisper-venv
+source ~/.local/share/voxfree/whisper-venv/bin/activate
+pip install whisper-ctranslate2
+
+# Create the path VoxFree expects
+sudo ln -sf ~/.local/share/voxfree/whisper-venv /opt/openai-whisper
+```
+
+Or for system-wide install:
+
+```bash
+sudo python3 -m venv /opt/openai-whisper
+sudo /opt/openai-whisper/bin/pip install whisper-ctranslate2
+sudo ln -sf /opt/openai-whisper/bin/whisper-ctranslate2 /usr/local/bin/whisper
+```
+
+### Set up Whisper model cache
+
+```bash
+sudo mkdir -p /var/cache/huggingface
+sudo chown -R $USER:$USER /var/cache/huggingface
+echo 'HF_HOME=/var/cache/huggingface' | sudo tee -a /etc/environment
+source /etc/environment
+```
+
+Download the model:
+
+```bash
+source /opt/openai-whisper/bin/activate   # or: source ~/.local/share/voxfree/whisper-venv/bin/activate
+python -c 'from faster_whisper import WhisperModel; WhisperModel("base.en"); print("Done")'
+```
+
+Verify: `find /var/cache/huggingface -type d | grep base`
+
+---
+
+## After prerequisites
+
+Now install VoxFree:
+
+```bash
+sudo bash install.sh --all
+```
+
+Then verify everything:
+
+```bash
+bash voxfree-doctor.sh --fix
+```
+
+If any steps are missed, Doctor will **auto-execute** what it can (voice model download, mute toggle, symlink creation, environment cleanup) and show you **exact copy-paste commands** for everything that needs admin access.
+
+> **Quick fix all:** If you want to skip manual setup entirely, just run:
+> ```bash
+> sudo bash voxfree-doctor.sh --fix
+> ```
+> It will auto-execute non-sudo fixes and list all remaining sudo commands grouped by subsystem.
+
+---
+
 ## A Note to the Community
 
 VoxFree is my first open-source project for Ubuntu. I built it because I wanted reliable, offline voice tools for my own machine and could not find anything that worked out of the box on GNOME/Wayland without cloud dependencies.
@@ -155,10 +302,10 @@ No reconfiguration needed on upgrade — keyboard shortcuts and settings are pre
 Run the doctor after installing to check every component is correctly set up:
 
 ```bash
-bash voxfree-doctor.sh
+bash voxfree-doctor.sh --fix
 ```
 
-It checks 36 points across four sections and prints a full summary grouped by result:
+With `--fix`, Doctor **auto-executes** safe non-sudo fixes (voice model download, mute toggle, symlink creation, environment cleanup) and groups remaining sudo-required fixes by subsystem — each with a copy-paste-ready command.
 
 ```
   VoxFree Doctor
@@ -173,19 +320,26 @@ System
 ReadLoud — Text-to-Speech
 ─────────────────────────
   [✔] mimic3 0.2.4 — /usr/bin/mimic3
-  [✔] Voice en_UK/apope_low available
-  ...
+  [✘] Voice en_UK/apope_low not found
+  [✔] Auto-fixed: Voice model downloaded
+
+  Fixes needed (copy & paste each):
+    1. sudo apt install speech-dispatcher
+    2. sudo bash /usr/share/voxfree/deps.sh --tts
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- Summary  (36 passed · 0 warnings · 0 failed)
+ Summary  (32 passed · 0 warnings · 1 failed)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Passed:
-    [✔] [System] Ubuntu 24.04 (Noble)
-    [✔] [ReadLoud] mimic3 0.2.4
-    ...
+  Auto-fixed:
+    [✔] [ReadLoud — Text-to-Speech] Voice model downloaded
 
-  ✔ VoxFree is fully operational!
+  ReadLoud — Text-to-Speech failures:
+    1. sudo apt install speech-dispatcher
+    2. sudo bash /usr/share/voxfree/deps.sh --tts
+
+  After running the above fixes:
+  Log out and back in for: HF_HOME env var, ydotool input group membership
 ```
 
 ### Doctor flags
@@ -195,10 +349,10 @@ ReadLoud — Text-to-Speech
 | *(none)* | Full check — all 36 points |
 | `--tts` | ReadLoud checks only |
 | `--stt` | SpeakToType checks only |
-| `--fix` | Show the exact fix command for every failure/warning |
+| `--fix` | Auto-execute non-sudo fixes + show copy-paste commands for sudo fixes |
 
 ```bash
-bash voxfree-doctor.sh --fix    # show remediation for every issue
+bash voxfree-doctor.sh --fix    # auto-fix what it can, list remaining sudo commands
 bash voxfree-doctor.sh --tts    # check ReadLoud only
 bash voxfree-doctor.sh --stt    # check SpeakToType only
 ```
@@ -383,13 +537,11 @@ voxfree-doctor.sh        (run anytime to verify — independent of install)
 
 ## Troubleshooting
 
-**Run the doctor first** — it identifies the exact problem and shows the fix:
-
+**Nothing works — start fresh:**
 ```bash
-bash voxfree-doctor.sh --fix
+sudo bash voxfree-doctor.sh --fix
 ```
-
-Common issues:
+Doctor auto-fixes what it can (voice model download, mute toggle, symlink creation) and lists every sudo command you need to run, grouped by subsystem.
 
 **Shortcuts don't fire:**
 ```bash
@@ -413,3 +565,30 @@ sox /tmp/last-stt-recording.wav -n stat 2>&1 | grep Length
 wev   # press each key, read the 'sym' field
 # Edit /etc/dconf/db/local.d/00-voice-shortcuts then: sudo dconf update
 ```
+
+---
+
+## Legal Disclaimer
+
+**By using VoxFree, you acknowledge and agree to the following terms:**
+
+**1. Intended Audience.** VoxFree is intended for **experienced Linux/Ubuntu users** who are comfortable working with system-level commands, including `sudo`, package management, service management, filesystem configuration, and environment variable configuration. If you are not familiar with these concepts, VoxFree is not suitable for your use.
+
+**2. No Warranty.** VoxFree is provided "as is", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and noninfringement. The author makes no guarantees that VoxFree will function correctly on your system or that installation or configuration will not cause system instability or data loss.
+
+**3. User Responsibility.** Installation and configuration of VoxFree requires executing commands that modify system packages, kernel modules, service configurations, environment files, and device permissions. You are solely responsible for:
+
+- Reviewing and understanding every command before executing it
+- Ensuring your system is backed up before proceeding with installation
+- Determining whether each configuration change is appropriate for your environment
+- Recovering from any system issues, instability, or data loss that may result from following the installation instructions, troubleshooting steps, or documentation provided with VoxFree
+
+**4. Limitation of Liability.** In no event shall the author, contributors, or any affiliated parties be liable for any direct, indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of data, system failure, system instability, or any other damages arising from the use, misuse, or inability to use VoxFree — even if advised of the possibility of such damages.
+
+**5. Risk Acknowledgement.** You acknowledge that executing `sudo` commands, modifying system configuration files, loading kernel modules, and changing device permissions carry inherent risks. VoxFree's installation and troubleshooting instructions involve such operations. By choosing to proceed, you accept these risks voluntarily.
+
+**6. No Support Obligation.** While bug reports and feedback are welcome, the author is under no obligation to provide technical support, system recovery assistance, or guarantees of future functionality.
+
+---
+
+*Last updated: June 2026*
