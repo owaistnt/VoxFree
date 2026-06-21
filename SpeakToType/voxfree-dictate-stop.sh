@@ -3,6 +3,7 @@
 
 PIDFILE="/tmp/stt-recording.pid"
 WAVFILE="/tmp/stt-recording.wav"
+DEBUG_WAV="/tmp/last-stt-recording.wav"
 SOUNDS="/usr/share/sounds/freedesktop/stereo"
 
 # Not recording — nothing to stop
@@ -39,7 +40,7 @@ sleep 0.3   # let arecord finalize the WAV header
 pw-play "$SOUNDS/complete.oga" 2>/dev/null &
 
 # Save debug copy (latest recording)
-[ -f "$WAVFILE" ] && cp "$WAVFILE" "/tmp/last-stt-recording.wav" 2>/dev/null
+[ -f "$WAVFILE" ] && cp "$WAVFILE" "$DEBUG_WAV" 2>/dev/null || true
 
 # Clean up old recording files (older than 1 hour) to prevent /tmp fill-up
 find /tmp -maxdepth 1 -name 'stt-recording-*.wav' -mmin +60 -delete 2>/dev/null || true
@@ -89,8 +90,6 @@ PREVIEW="${TRANSCRIPT:0:60}"
 [ "${#TRANSCRIPT}" -gt 60 ] && PREVIEW="${PREVIEW}..."
 
 # Copy to clipboard (always — works for all apps)
-# Use -t text/plain to ensure text is recognized, preventing leftover image
-# clipboard data from being pasted as an image in the target app
 printf '%s' "$TRANSCRIPT" | wl-copy -t text/plain 2>/dev/null
 
 # Smart paste: detect if a terminal is focused and use correct paste key

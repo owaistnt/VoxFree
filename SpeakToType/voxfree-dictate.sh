@@ -25,8 +25,9 @@ export PULSE_RUNTIME_PATH="$XDG_RUNTIME_DIR/pulse"
 # Unmute mic — ThinkPad LED turns OFF = recording active
 wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0 2>/dev/null
 
-# Clean up any previous recording (remove stale PID file, leave WAV files alone)
-rm -f "$PIDFILE" 2>/dev/null || :
+# Clean up any previous recording
+rm -f "$PIDFILE" 2>/dev/null || true
+[ -f "$WAVFILE" ] && rm -f "$WAVFILE" 2>/dev/null || true
 
 # Start recording
 arecord -D default -f S16_LE -r 16000 -c 1 -q "$WAVFILE" &
