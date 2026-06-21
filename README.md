@@ -1,7 +1,7 @@
 # VoxFree
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
-![Version](https://img.shields.io/badge/version-0.3.2-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.3-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Ubuntu%2024.04%20GNOME%2FWayland-orange.svg)
 
 **Offline voice tools for Ubuntu 24.04 GNOME/Wayland.**
@@ -270,10 +270,10 @@ Pre-built `.deb` packages are available in the [`releases/`](releases/) folder f
 
 ```bash
 # 1. Download the .deb
-wget https://github.com/owaistnt/VoxFree/raw/main/releases/voxfree_0.3.2_all.deb
+wget https://github.com/owaistnt/VoxFree/raw/main/releases/voxfree_0.3.3_all.deb
 
 # 2. Install
-sudo dpkg -i voxfree_0.3.2_all.deb
+sudo dpkg -i voxfree_0.3.3_all.deb
 
 # 3. Fix any missing dependencies
 sudo apt install -f
@@ -289,7 +289,7 @@ sudo voxfree --install
 ### Upgrade from a previous version
 
 ```bash
-sudo dpkg -i voxfree_0.3.2_all.deb   # dpkg handles the upgrade automatically
+sudo dpkg -i voxfree_0.3.3_all.deb   # dpkg handles the upgrade automatically
 voxfree --doctor                       # verify everything is working
 ```
 
@@ -378,7 +378,7 @@ Shows the installed version:
 
 ```
 $ voxfree --version
-VoxFree 0.3.2
+VoxFree 0.3.3
 ```
 
 ### `voxfree --voice`
