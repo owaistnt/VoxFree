@@ -42,6 +42,26 @@ hash -r
 voxfree --doctor
 ```
 
+## Cleanup Old User-Mode Files
+
+If VoxFree was previously installed in user mode (`install.sh --user`), leftover files in `~/.local/bin/` and `~/.local/share/voxfree/` can cause confusion or conflicts.
+
+Remove them after switching to the deb-installed system mode:
+
+```bash
+rm ~/.local/bin/voxfree ~/.local/bin/voxfree-doctor
+rm -rf ~/.local/bin/voxfree-readloud ~/.local/bin/voxfree-dictate ~/.local/bin/voxfree-stop-all ~/.local/bin/voxfree-dictate-stop ~/.local/bin/voxfree-readloud-stop
+rm -rf ~/.local/share/voxfree
+hash -r
+```
+
+Then verify:
+
+```bash
+voxfree --version
+voxfree --help
+```
+
 ## Verification
 
 ```bash
