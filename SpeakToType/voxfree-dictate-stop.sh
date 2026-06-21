@@ -3,7 +3,6 @@
 
 PIDFILE="/tmp/stt-recording.pid"
 WAVFILE="/tmp/stt-recording.wav"
-DEBUG_WAV="/tmp/last-stt-recording.wav"
 SOUNDS="/usr/share/sounds/freedesktop/stereo"
 
 # Not recording — nothing to stop
@@ -14,6 +13,9 @@ if [ ! -f "$PIDFILE" ]; then
 fi
 
 REC_PID=$(cat "$PIDFILE")
+
+# Find the WAV file from this recording session (unique per PID/timestamp)
+WAVFILE=$(ls -t /tmp/stt-recording-*.wav 2>/dev/null | head -1)
 
 # Check recording is long enough (need at least 1 second)
 if [ -f "$WAVFILE" ]; then
@@ -36,8 +38,11 @@ sleep 0.3   # let arecord finalize the WAV header
 
 pw-play "$SOUNDS/complete.oga" 2>/dev/null &
 
-# Save debug copy
-[ -f "$WAVFILE" ] && cp "$WAVFILE" "$DEBUG_WAV" 2>/dev/null
+# Save debug copy (latest recording)
+[ -f "$WAVFILE" ] && cp "$WAVFILE" "/tmp/last-stt-recording.wav" 2>/dev/null
+
+# Clean up old recording files (older than 1 hour) to prevent /tmp fill-up
+find /tmp -maxdepth 1 -name 'stt-recording-*.wav' -mmin +60 -delete 2>/dev/null || true
 
 if [ ! -f "$WAVFILE" ] || [ ! -s "$WAVFILE" ]; then
     pw-play "$SOUNDS/dialog-error.oga" 2>/dev/null &
