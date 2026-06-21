@@ -64,7 +64,31 @@ cp "$SCRIPT_DIR/lib/detect.sh" "$STAGING/usr/share/voxfree/lib/"
 cat > "$STAGING/usr/local/bin/voxfree" << 'WRAPEOF'
 #!/bin/bash
 # voxfree — VoxFree unified CLI (installed by .deb)
-exec bash /usr/share/voxfree/install.sh --voxfree-cli "$@"
+# Self-contained dispatcher — does NOT delegate to install.sh
+VOXFREE_HOME="/usr/share/voxfree"
+VERSION=$(cat "$VOXFREE_HOME/VERSION" 2>/dev/null || echo "0.1.0")
+
+case "${1:-}" in
+    --version|-v)  printf "VoxFree %s\n" "$VERSION" ;;
+    --doctor)      shift; exec bash "$VOXFREE_HOME/voxfree-doctor.sh" "$@" ;;
+    --voice)       shift; exec bash "$VOXFREE_HOME/voxfree-voice.sh" "$@" ;;
+    --install)     shift; exec bash "$VOXFREE_HOME/install.sh" "$@" ;;
+    --uninstall)   shift; exec bash "$VOXFREE_HOME/uninstall.sh" "$@" ;;
+    --help|-h|"")
+        printf "\nVoxFree %s — Offline voice tools for Ubuntu 24.04\n\n" "$VERSION"
+        printf "Usage: voxfree <command>\n\n"
+        printf "  --install [--tts|--stt|--all] [--user]  Install or reconfigure\n"
+        printf "  --uninstall [--purge] [--user]           Remove VoxFree\n"
+        printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
+        printf "  --voice                                  Change TTS voice\n"
+        printf "  --version                                Show version\n\n"
+        printf "Keyboard shortcuts (ThinkPad):\n"
+        printf "  F9   — Read selected text aloud (voxfree-readloud)\n"
+        printf "  F10  — Start dictation (voxfree-dictate)\n"
+        printf "  F11  — Stop reading / Stop dictation\n\n"
+        ;;
+    *)  printf "Unknown command: %s\nRun: voxfree --help\n" "$1" >&2; exit 1 ;;
+esac
 WRAPEOF
 
 cat > "$STAGING/usr/local/bin/voxfree-doctor" << 'WRAPEOF'
@@ -73,8 +97,19 @@ cat > "$STAGING/usr/local/bin/voxfree-doctor" << 'WRAPEOF'
 exec bash /usr/share/voxfree/voxfree-doctor.sh "$@"
 WRAPEOF
 
-chmod 755 "$STAGING/usr/local/bin/voxfree"
-chmod 755 "$STAGING/usr/local/bin/voxfree-doctor"
+cat > "$STAGING/usr/local/bin/voxfree-voice" << 'WRAPEOF'
+#!/bin/bash
+# voxfree-voice — VoxFree TTS voice selector (installed by .deb)
+exec bash /usr/share/voxfree/voxfree-voice.sh "$@"
+WRAPEOF
+
+cat > "$STAGING/usr/local/bin/voxfree-uninstall" << 'WRAPEOF'
+#!/bin/bash
+# voxfree-uninstall — VoxFree uninstaller (installed by .deb)
+exec bash /usr/share/voxfree/uninstall.sh "$@"
+WRAPEOF
+
+chmod 755 "$STAGING/usr/local/bin/voxfree" "$STAGING/usr/local/bin/voxfree-doctor" "$STAGING/usr/local/bin/voxfree-voice" "$STAGING/usr/local/bin/voxfree-uninstall"
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 cp "$SCRIPT_DIR/README.md" "$STAGING/usr/share/doc/voxfree/"
