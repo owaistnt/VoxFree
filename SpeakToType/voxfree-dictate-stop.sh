@@ -1,22 +1,21 @@
 #!/bin/bash
 # voxfree-dictate-stop — Stop recording, transcribe, paste (F11)
 
-PIDFILE="/tmp/stt-recording.pid"
 WAVFILE="/tmp/stt-recording.wav"
 DEBUG_WAV="/tmp/last-stt-recording.wav"
 SOUNDS="/usr/share/sounds/freedesktop/stereo"
 
+# Find the most recent WAV file being recorded
+RECORDING_WAV=$(ls -t /tmp/stt-recording-*.wav 2>/dev/null | head -1)
+
 # Not recording — nothing to stop
-if [ ! -f "$PIDFILE" ]; then
+if [ -z "$RECORDING_WAV" ] || ! fuser "$RECORDING_WAV" >/dev/null 2>&1; then
     notify-send "VoxFree" "ℹ Not recording. Press F10 to start." \
         -i dialog-information -t 2000 2>/dev/null
     exit 0
 fi
 
-REC_PID=$(cat "$PIDFILE")
-
-# Find the WAV file from this recording session (unique per PID/timestamp)
-WAVFILE=$(ls -t /tmp/stt-recording-*.wav 2>/dev/null | head -1)
+WAVFILE="$RECORDING_WAV"
 
 # Check recording is long enough (need at least 1 second)
 if [ -f "$WAVFILE" ]; then
@@ -26,15 +25,13 @@ if [ -f "$WAVFILE" ]; then
         notify-send "VoxFree" \
             "⚠ Too short! Keep F10 held down longer while speaking." \
             -i dialog-warning -t 3000 2>/dev/null
-        kill -TERM "$REC_PID" 2>/dev/null
-        rm -f "$PIDFILE"
+        pkill -TERM -f "arecord.*$(basename "$WAVFILE")" 2>/dev/null
         exit 0
     fi
 fi
 
 # Stop recording
-kill -TERM "$REC_PID" 2>/dev/null
-rm -f "$PIDFILE"
+pkill -TERM -f "arecord.*$(basename "$WAVFILE")" 2>/dev/null
 sleep 0.3   # let arecord finalize the WAV header
 
 pw-play "$SOUNDS/complete.oga" 2>/dev/null &

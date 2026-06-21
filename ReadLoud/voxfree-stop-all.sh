@@ -13,9 +13,14 @@ if pgrep -f "mimic3.*--stdout" >/dev/null 2>&1; then
     STOPPED="reading"
 fi
 
-# Stop STT — delegate to voxfree-dictate-stop so it transcribes the audio
-PIDFILE="/tmp/stt-recording.pid"
-if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+# Stop STT — check if any stt-recording WAV file is being written to
+# Uses fuser to detect active file handles, more reliable than PID checks
+STT_ACTIVE=false
+for WAV in /tmp/stt-recording-*.wav; do
+    [ -f "$WAV" ] && fuser "$WAV" >/dev/null 2>&1 && STT_ACTIVE=true && break
+done
+
+if [ "$STT_ACTIVE" = true ]; then
     # Notify about TTS stop first if we stopped reading above
     if [ -n "$STOPPED" ]; then
         notify-send "VoxFree" "Stopped: $STOPPED" -i audio-volume-muted -t 1500 2>/dev/null
