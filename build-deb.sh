@@ -93,6 +93,9 @@ case "${1:-}" in
 esac
 WRAPEOF
 
+# Also store wrapper in /usr/share/voxfree/ so postinst can re-copy it on upgrade
+cp "$STAGING/usr/local/bin/voxfree" "$STAGING/usr/share/voxfree/"
+
 cat > "$STAGING/usr/local/bin/voxfree-doctor" << 'WRAPEOF'
 #!/bin/bash
 # voxfree-doctor — VoxFree health checker (installed by .deb)

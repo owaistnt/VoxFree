@@ -5,8 +5,8 @@ case "$1" in
         SHARE="/usr/share/voxfree"
         BIN="/usr/local/bin"
 
-        # Always re-copy runtime scripts from /usr/share/voxfree/ so that
-        # upgrades via dpkg pick up new versions without re-running interactive setup.
+        # Always re-copy runtime scripts and the unified CLI wrapper from /usr/share/voxfree/
+        # so that upgrades via dpkg pick up new versions without re-running interactive setup.
         for F in \
             ReadLoud/voxfree-readloud.sh:voxfree-readloud \
             ReadLoud/voxfree-readloud-stop.sh:voxfree-readloud-stop \
@@ -16,6 +16,13 @@ case "$1" in
             SRC="${F%%:*}"
             DEST="${F##*:}"
             [ -f "$SHARE/$SRC" ] && install -m 755 "$SHARE/$SRC" "$BIN/$DEST"
+        done
+
+        # Re-copy the thin CLI wrappers that live in /usr/share/voxfree/ but
+        # are also exposed in /usr/local/bin/ via the deb. This keeps them in
+        # sync when upgrading via dpkg without re-running install.sh.
+        for F in voxfree voxfree-voice voxfree-uninstall; do
+            [ -f "$SHARE/$F" ] && install -m 755 "$SHARE/$F" "$BIN/$F"
         done
 
         # Also update user-level scripts (~/.local/bin/) if they were previously
@@ -38,7 +45,6 @@ case "$1" in
                     install -m 755 "$SHARE/$SRC" "$UHOME/.local/bin/$DEST" 2>/dev/null || true
             done
         done
-
         # Fresh install: run interactive configuration if a terminal is available.
         # Upgrade (2 is the old version passed by dpkg): scripts are updated above,
         # no interactive setup needed.
