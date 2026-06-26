@@ -53,12 +53,26 @@ case "$1" in
             done
             install -m 644 "$SHARE/lib/state.sh" "$UHOME/.local/bin/lib/state.sh" 2>/dev/null || true
         done
-        # Install GNOME Shell extension
+        # Install GNOME Shell extension — system level
         EXT_DIR="/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
         mkdir -p "$EXT_DIR"
         if [ -d "$SHARE/ReadLoud/gnome-shell-extension" ]; then
             cp "$SHARE/ReadLoud/gnome-shell-extension/"*.js "$SHARE/ReadLoud/gnome-shell-extension/"*.json "$EXT_DIR/" 2>/dev/null || true
         fi
+
+        # Also update user-level extensions (~/lib/extensions/) if previously
+        # installed via readloud.sh --user — prevents stale overrides after
+        # .deb upgrades (user-level path takes priority over /usr/share/).
+        for RUNID in /run/user/*; do
+            USERID="${RUNID#/run/user/}"
+            UHOME=$(getent passwd "$USERID" 2>/dev/null | cut -d: -f6)
+            [ -z "$UHOME" ] && continue
+            UEXT_DIR="$UHOME/.local/share/gnome-shell/extensions/voxfree@voxfree.app"
+            if [ -d "$UEXT_DIR" ] && [ -d "$SHARE/ReadLoud/gnome-shell-extension" ]; then
+                cp "$SHARE/ReadLoud/gnome-shell-extension/"*.js "$SHARE/ReadLoud/gnome-shell-extension/"*.json "$UEXT_DIR/" 2>/dev/null || true
+                chown "$USERID:$USERID" "$UEXT_DIR"/*.js "$UEXT_DIR"/*.json 2>/dev/null || true
+            fi
+        done
 
         # Enable extension if gnome-extensions is available
         if command -v gnome-extensions >/dev/null 2>&1; then

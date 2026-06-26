@@ -14,7 +14,7 @@ export default class VoxFreeExtension extends Extension {
         this._state = 'idle';
         this._lastText = '';
         this._voicesLoaded = false;
-        this._voiceItemIndices = [];
+        this._voiceItems = [];
 
         this._indicator = new PanelMenu.Button(0.0, this.metadata.name, false);
 
@@ -79,10 +79,10 @@ export default class VoxFreeExtension extends Extension {
 
     _loadVoices() {
         // Remove old voice items
-        for (const idx of this._voiceItemIndices) {
-            this._indicator.menu.removeMenuItem(idx);
+        for (const item of this._voiceItems) {
+            this._indicator.menu.removeMenuItem(item);
         }
-        this._voiceItemIndices = [];
+        this._voiceItems = [];
 
         const voiceScripts = [
             '/usr/share/voxfree/lib/list-voices.sh',
@@ -109,7 +109,7 @@ export default class VoxFreeExtension extends Extension {
             const note = new PopupMenu.PopupMenuItem('Install Mimic 3 to select voices');
             note.setSensitive(false);
             this._indicator.menu.insertMenuItem(note, this._voicesSeparatorIndex);
-            this._voiceItemIndices.push(this._voicesSeparatorIndex);
+            this._voiceItems.push(note);
             return;
         }
 
@@ -132,7 +132,7 @@ export default class VoxFreeExtension extends Extension {
             });
             const insertIdx = this._voicesSeparatorIndex + 1;
             this._indicator.menu.insertMenuItem(item, insertIdx);
-            this._voiceItemIndices.push(insertIdx);
+            this._voiceItems.push(item);
         }
     }
 
