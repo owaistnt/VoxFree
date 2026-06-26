@@ -45,7 +45,8 @@ for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-switch.sh vox
 done
 
 # ReadLoud scripts
-for F in readloud.sh readloud.md voxfree-readloud.sh voxfree-readloud-stop.sh voxfree-stop-all.sh; do
+for F in readloud.sh readloud.md voxfree-readloud.sh voxfree-readloud-stop.sh \
+         voxfree-stop-all.sh voxfree-readloud-last.sh voxfree-indicator; do
     [ -f "$SCRIPT_DIR/ReadLoud/$F" ] && \
         cp "$SCRIPT_DIR/ReadLoud/$F" "$STAGING/usr/share/voxfree/ReadLoud/"
 done
@@ -58,7 +59,7 @@ for F in speak-to-type.sh speak-to-type.md voxfree-dictate.sh voxfree-dictate-st
 done
 
 # lib/
-for F in detect.sh keyboard-layout.sh; do
+for F in detect.sh keyboard-layout.sh state.sh; do
     [ -f "$SCRIPT_DIR/lib/$F" ] && cp "$SCRIPT_DIR/lib/$F" "$STAGING/usr/share/voxfree/lib/"
 done
 

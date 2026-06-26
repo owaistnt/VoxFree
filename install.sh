@@ -161,6 +161,8 @@ if [ "$INSTALL_MODE" = "system" ]; then
         cp "$SCRIPT_DIR/uninstall.sh"       "$WRAPPER_DATA_DIR/" 2>/dev/null || true
         cp "$SCRIPT_DIR/VERSION"            "$WRAPPER_DATA_DIR/"
         cp -r "$SCRIPT_DIR/lib"             "$WRAPPER_DATA_DIR/"
+        # Ensure state.sh is in the lib dir for sourcing
+        [ -f "$SCRIPT_DIR/lib/state.sh" ] && chmod 644 "$WRAPPER_DATA_DIR/lib/state.sh" 2>/dev/null || true
         cp -r "$SCRIPT_DIR/ReadLoud"        "$WRAPPER_DATA_DIR/"
         cp -r "$SCRIPT_DIR/SpeakToType"     "$WRAPPER_DATA_DIR/"
         chmod -R 755 "$WRAPPER_DATA_DIR"
@@ -176,6 +178,7 @@ else
     cp "$SCRIPT_DIR/uninstall.sh"       "$WRAPPER_DATA_DIR/" 2>/dev/null || true
     cp "$SCRIPT_DIR/VERSION"            "$WRAPPER_DATA_DIR/"
     cp -r "$SCRIPT_DIR/lib"             "$WRAPPER_DATA_DIR/"
+    [ -f "$SCRIPT_DIR/lib/state.sh" ] && chmod 644 "$WRAPPER_DATA_DIR/lib/state.sh" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/ReadLoud"        "$WRAPPER_DATA_DIR/"
     cp -r "$SCRIPT_DIR/SpeakToType"     "$WRAPPER_DATA_DIR/"
     chown -R "$ACTUAL_USER:$ACTUAL_USER" "$WRAPPER_DATA_DIR" 2>/dev/null || true

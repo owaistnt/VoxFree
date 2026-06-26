@@ -247,6 +247,59 @@ if command -v mimic3 >/dev/null 2>&1 && command -v aplay >/dev/null 2>&1; then
     fi
 fi
 
+# Indicator checks
+CURRENT_SECTION="Indicator"
+if [ "$CHECK_TTS" = true ]; then
+
+    # python3-gi
+    if python3 -c "import gi" 2>/dev/null; then
+        ok "python3-gi available (GTK introspection)"
+    else
+        fail "python3-gi not available"
+        sudo_fix "Indicator" "python3-gi" "sudo apt install python3-gi" "" ""
+    fi
+
+    # AyatanaAppIndicator3
+    if python3 -c "import gi; gi.require_version('AyatanaAppIndicator3', '0.1'); from gi.repository import AyatanaAppIndicator3" 2>/dev/null; then
+        ok "AyatanaAppIndicator3 available"
+    elif python3 -c "import gi; gi.require_version('AppIndicator3', '0.1'); from gi.repository import AppIndicator3" 2>/dev/null; then
+        ok "AppIndicator3 available (fallback)"
+    else
+        fail "No AppIndicator library found"
+        sudo_fix "Indicator" "ayatana-appindicator" "sudo apt install gir1.2-ayatanaappindicator3-0.1" "" ""
+    fi
+
+    # voxfree-indicator script
+    if [ -x /usr/local/bin/voxfree-indicator ] || [ -x "$HOME/.local/bin/voxfree-indicator" ]; then
+        ok "voxfree-indicator installed"
+    else
+        warn "voxfree-indicator not installed — run readloud.sh to install"
+    fi
+
+    # voxfree-readloud-last script
+    if [ -x /usr/local/bin/voxfree-readloud-last ] || [ -x "$HOME/.local/bin/voxfree-readloud-last" ]; then
+        ok "voxfree-readloud-last installed (replay)"
+    else
+        warn "voxfree-readloud-last not installed"
+    fi
+
+    # Indicator process running
+    if pgrep -f "voxfree-indicator" >/dev/null 2>&1; then
+        ok "voxfree-indicator is running"
+    else
+        warn "voxfree-indicator is not running — start with 'voxfree-indicator'"
+    fi
+
+    # State file
+    if [ -f /tmp/voxfree/state ]; then
+        STATE_VAL=$(grep "^STATE=" /tmp/voxfree/state | cut -d= -f2)
+        ok "State file: STATE=${STATE_VAL:-unknown}"
+    else
+        warn "State file not found — will be created on first readloud"
+    fi
+
+fi
+
 fi # end TTS checks
 
 # Per-section fix block

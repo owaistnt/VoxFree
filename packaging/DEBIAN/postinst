@@ -11,12 +11,16 @@ case "$1" in
             ReadLoud/voxfree-readloud.sh:voxfree-readloud \
             ReadLoud/voxfree-readloud-stop.sh:voxfree-readloud-stop \
             ReadLoud/voxfree-stop-all.sh:voxfree-stop-all \
+            ReadLoud/voxfree-readloud-last.sh:voxfree-readloud-last \
+            ReadLoud/voxfree-indicator:voxfree-indicator \
             SpeakToType/voxfree-dictate.sh:voxfree-dictate \
             SpeakToType/voxfree-dictate-stop.sh:voxfree-dictate-stop; do
             SRC="${F%%:*}"
             DEST="${F##*:}"
             [ -f "$SHARE/$SRC" ] && install -m 755 "$SHARE/$SRC" "$BIN/$DEST"
         done
+        # Install state library
+        install -m 644 "$SHARE/lib/state.sh" "$BIN/lib/state.sh" 2>/dev/null || true
 
         # Re-copy the thin CLI wrappers that live in /usr/share/voxfree/ but
         # are also exposed in /usr/local/bin/ via the deb. This keeps them in
@@ -33,10 +37,13 @@ case "$1" in
             USERID="${RUNID#/run/user/}"
             UHOME=$(getent passwd "$USERID" 2>/dev/null | cut -d: -f6)
             [ -z "$UHOME" ] && continue
+            mkdir -p "$UHOME/.local/bin/lib" 2>/dev/null || true
             for F in \
                 ReadLoud/voxfree-readloud.sh:voxfree-readloud \
                 ReadLoud/voxfree-readloud-stop.sh:voxfree-readloud-stop \
                 ReadLoud/voxfree-stop-all.sh:voxfree-stop-all \
+                ReadLoud/voxfree-readloud-last.sh:voxfree-readloud-last \
+                ReadLoud/voxfree-indicator:voxfree-indicator \
                 SpeakToType/voxfree-dictate.sh:voxfree-dictate \
                 SpeakToType/voxfree-dictate-stop.sh:voxfree-dictate-stop; do
                 SRC="${F%%:*}"
@@ -44,6 +51,7 @@ case "$1" in
                 [ -f "$SHARE/$SRC" ] && [ -d "$UHOME/.local/bin" ] && \
                     install -m 755 "$SHARE/$SRC" "$UHOME/.local/bin/$DEST" 2>/dev/null || true
             done
+            install -m 644 "$SHARE/lib/state.sh" "$UHOME/.local/bin/lib/state.sh" 2>/dev/null || true
         done
         # Fresh install: run interactive configuration if a terminal is available.
         # Upgrade (2 is the old version passed by dpkg): scripts are updated above,
@@ -60,6 +68,9 @@ case "$1" in
                 echo "Run the following to configure keyboard shortcuts and dependencies:"
                 echo "  sudo voxfree --install"
                 echo ""
+                echo "To start the system tray indicator now:"
+                echo "  voxfree-indicator"
+                echo ""
                 echo "Or run the health check:"
                 echo "  voxfree --doctor"
             fi
@@ -68,6 +79,11 @@ case "$1" in
             echo ""
             echo "VoxFree upgraded to $(cat $SHARE/VERSION 2>/dev/null || echo unknown)."
             echo "Runtime scripts updated. No reconfiguration needed."
+            echo ""
+            echo "New in 0.4.0: system tray indicator"
+            echo "  voxfree-indicator      — start the indicator"
+            echo "  voxfree-readloud-last  — replay last spoken text"
+            echo ""
             echo "Run 'voxfree --doctor' to verify."
             echo ""
         fi

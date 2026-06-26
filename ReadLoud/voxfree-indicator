@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+"""VoxFree ReadLoud system tray indicator.
+
+Provides an AppIndicator/Ayatana icon in the system tray with:
+  - Read Aloud / Stop Reading toggle (context-sensitive)
+  - Replay Last
+  - Quit
+
+Reads /tmp/voxfree/state (written by the core bash scripts) for state.
+Calls public API commands: voxfree-readloud, voxfree-stop-all, voxfree-readloud-last.
+"""
+
+import os
+import sys
+import time
+import subprocess
+import signal
+import gi
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("GLib", "2.0")
+
+from gi.repository import Gtk, GLib
+
+HAS_INDICATOR = False
+try:
+    gi.require_version("AyatanaAppIndicator3", "0.1")
+    from gi.repository import AyatanaAppIndicator3 as AppIndicator
+    HAS_INDICATOR = True
+except (ValueError, ImportError):
+    try:
+        gi.require_version("AppIndicator3", "0.1")
+        from gi.repository import AppIndicator3 as AppIndicator
+        HAS_INDICATOR = True
+    except (ValueError, ImportError):
+        HAS_INDICATOR = False
+
+STATE_FILE = "/tmp/voxfree/state"
+PID_FILE = "/tmp/voxfree/indicator.pid"
+POLL_INTERVAL = 1
+
+
+class ReadLoudIndicator:
+    def __init__(self):
+        self.state = "idle"
+        self.last_text = ""
+        self.indicator = None
+        self.menu = None
+        self.read_item = None
+        self.stop_item = None
+        self.replay_item = None
+
+    def read_state(self):
+        try:
+            with open(STATE_FILE) as f:
+                for line in f:
+                    line = line.strip()
+                    if "=" not in line:
+                        continue
+                    key, val = line.split("=", 1)
+                    if key == "STATE":
+                        self.state = val.strip()
+                    elif key == "LAST_TEXT":
+                        self.last_text = val.strip()
+        except (FileNotFoundError, PermissionError):
+            self.state = "idle"
+            self.last_text = ""
+
+    def run_cmd(self, cmd):
+        try:
+            subprocess.run(
+                ["sh", "-c", f"nohup {cmd} >/dev/null 2>&1 &"],
+                check=False
+            )
+        except Exception:
+            pass
+
+    def on_read_aloud(self, _widget):
+        self.run_cmd("voxfree-readloud")
+
+    def on_stop_reading(self, _widget):
+        self.run_cmd("voxfree-stop-all")
+
+    def on_replay_last(self, _widget):
+        self.run_cmd("voxfree-readloud-last")
+
+    def on_quit(self, _widget):
+        Gtk.main_quit()
+
+    def build_menu(self):
+        self.menu = Gtk.Menu()
+
+        self.read_item = Gtk.MenuItem(label="Read Aloud")
+        self.read_item.connect("activate", self.on_read_aloud)
+        self.menu.append(self.read_item)
+
+        self.stop_item = Gtk.MenuItem(label="Stop Reading")
+        self.stop_item.connect("activate", self.on_stop_reading)
+        self.menu.append(self.stop_item)
+
+        self.replay_item = Gtk.MenuItem(label="Replay Last")
+        self.replay_item.connect("activate", self.on_replay_last)
+        self.menu.append(self.replay_item)
+
+        self.menu.append(Gtk.SeparatorMenuItem())
+
+        quit_item = Gtk.MenuItem(label="Quit")
+        quit_item.connect("activate", self.on_quit)
+        self.menu.append(quit_item)
+
+        self.menu.show_all()
+        self.update_menu()
+
+    def update_menu(self):
+        is_playing = (self.state == "playing")
+        has_last = bool(self.last_text)
+
+        if is_playing:
+            self.read_item.set_visible(False)
+            self.stop_item.set_visible(True)
+        else:
+            self.read_item.set_visible(True)
+            self.stop_item.set_visible(False)
+
+        self.replay_item.set_sensitive(has_last and not is_playing)
+
+    def poll_state(self):
+        self.read_state()
+        self.update_menu()
+
+        is_playing = (self.state == "playing")
+        icon = "media-playback-stop" if is_playing else "audio-speakers"
+        if self.indicator:
+            self.indicator.set_icon_full(icon, icon)
+
+        return True
+
+    def run(self):
+        if not HAS_INDICATOR:
+            subprocess.run(
+                [
+                    "notify-send", "VoxFree",
+                    "Indicator dependencies not available.\n"
+                    "Install: gir1.2-ayatanaappindicator3-0.1",
+                    "-i", "dialog-error", "-t", "5000"
+                ],
+                check=False
+            )
+            sys.exit(1)
+
+        self.indicator = AppIndicator.Indicator.new(
+            "voxfree-readloud",
+            "audio-speakers",
+            AppIndicator.IndicatorCategory.APPLICATION_STATUS
+        )
+        self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
+
+        self.build_menu()
+        self.indicator.set_menu(self.menu)
+
+        self.poll_state()
+        GLib.timeout_add_seconds(POLL_INTERVAL, self.poll_state)
+
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        Gtk.main()
+
+
+def ensure_single_instance():
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE) as f:
+                old_pid = int(f.read().strip())
+            os.kill(old_pid, 0)
+            print("VoxFree indicator is already running (PID {old_pid}).", file=sys.stderr)
+            sys.exit(0)
+        except (ProcessLookupError, ValueError, OSError):
+            pass
+
+    with open(PID_FILE, "w") as f:
+        f.write(str(os.getpid()))
+
+
+def cleanup_pid():
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE) as f:
+                pid = int(f.read().strip())
+            if pid == os.getpid():
+                os.unlink(PID_FILE)
+        except (ValueError, OSError):
+            pass
+
+
+def main():
+    ensure_single_instance()
+
+    os.makedirs("/tmp/voxfree", exist_ok=True)
+
+    app = ReadLoudIndicator()
+    try:
+        app.run()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cleanup_pid()
+
+
+if __name__ == "__main__":
+    main()

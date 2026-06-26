@@ -60,8 +60,8 @@ source "$SCRIPT_DIR/lib/detect.sh"
 # ── Step 1: APT packages ──────────────────────────────────────────────────────
 section "Step 1: APT packages"
 
-COMMON_PKGS="wl-clipboard alsa-utils libnotify-bin wev"
-TTS_PKGS="speech-dispatcher"
+COMMON_PKGS="wl-clipboard alsa-utils libnotify-bin wev python3-gi"
+TTS_PKGS="speech-dispatcher gir1.2-ayatanaappindicator3-0.1"
 STT_PKGS="sox libsox-fmt-all xdotool ydotool python3-venv ffmpeg"
 
 if [ "$INSTALL_MODE" = "system" ]; then

@@ -146,6 +146,18 @@ install_script() {
 install_script "voxfree-readloud.sh"      "voxfree-readloud"
 install_script "voxfree-readloud-stop.sh" "voxfree-readloud-stop"
 install_script "voxfree-stop-all.sh"      "voxfree-stop-all"
+install_script "voxfree-readloud-last.sh" "voxfree-readloud-last"
+install_script "voxfree-indicator"        "voxfree-indicator"
+
+# Install state.sh library alongside the scripts
+STATE_LIB_DEST="$BIN_DIR/lib"
+mkdir -p "$STATE_LIB_DEST"
+if [ -f "$VOXFREE_DIR/lib/state.sh" ]; then
+    cp "$VOXFREE_DIR/lib/state.sh" "$STATE_LIB_DEST/state.sh"
+    chmod 644 "$STATE_LIB_DEST/state.sh"
+    [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$STATE_LIB_DEST" "$STATE_LIB_DEST/state.sh" 2>/dev/null || true
+    ok "$STATE_LIB_DEST/state.sh"
+fi
 
 # ── Step 5: GNOME keyboard shortcuts ─────────────────────────────────────────
 [ "$LAYOUT" = "skip" ] && { warn "Skipping shortcuts."; } || {
@@ -220,6 +232,53 @@ sudo -u "$ACTUAL_USER" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${USER_ID}/
 CONF_DIR="$CONF_DIR" bash "$VOXFREE_DIR/lib/keyboard-layout.sh" write_keyboard_layout "$LAYOUT" 2>/dev/null || true
 }
 
+# ── Step 6: System tray indicator ─────────────────────────────────────────────
+section "Step 6: System tray indicator"
+
+if [ -f "$RL_DIR/voxfree-indicator" ]; then
+    ok "voxfree-indicator installed to $BIN_DIR"
+
+    INSTALL_INDICATOR=""
+    if [ -t 0 ]; then
+        printf "\n  ${BOLD}VoxFree can show a system tray icon${RESET} to start/stop reading.\n"
+        printf "  (requires: gir1.2-ayatanaappindicator3-0.1)\n"
+        while true; do
+            read -r -p "  Launch indicator at login? [Y/n]: " ANS
+            case "$ANS" in
+                ""|y|Y) INSTALL_INDICATOR="yes"; break ;;
+                n|N) INSTALL_INDICATOR="no"; break ;;
+            esac
+        done
+    fi
+
+    if [ "$INSTALL_INDICATOR" != "no" ]; then
+        if [ "$INSTALL_MODE" = "system" ]; then
+            AUTOSTART_DIR="/etc/xdg/autostart"
+        else
+            AUTOSTART_DIR="$ACTUAL_HOME/.config/autostart"
+            mkdir -p "$AUTOSTART_DIR"
+        fi
+
+        cat > "$AUTOSTART_DIR/voxfree-indicator.desktop" << DESKTOPF
+[Desktop Entry]
+Type=Application
+Name=VoxFree ReadLoud Indicator
+Comment=Start and stop text-to-speech reading from the system tray
+Exec=${BIN_DIR}/voxfree-indicator
+Terminal=false
+Categories=Utility;Audio;
+X-GNOME-Autostart-enabled=true
+DESKTOPF
+        chmod 644 "$AUTOSTART_DIR/voxfree-indicator.desktop"
+        [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$AUTOSTART_DIR/voxfree-indicator.desktop" 2>/dev/null || true
+        ok "Autostart configured: $AUTOSTART_DIR/voxfree-indicator.desktop"
+    else
+        info "Skipping autostart. Run 'voxfree-indicator' manually to start the indicator."
+    fi
+else
+    warn "voxfree-indicator script not found — skipping indicator setup"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 printf "\n${BOLD}${GREEN}=== ReadLoud TTS Ready ===${RESET}\n\n"
 if [ "$LAYOUT" = "thinkpad" ]; then
@@ -230,4 +289,6 @@ elif [ "$LAYOUT" = "standard" ]; then
     printf "  ${CYAN}Super+Shift+K${RESET}  → Stop all voice activity\n"
 fi
 printf "\n  Change voice:   ${YELLOW}voxfree --voice${RESET}\n"
+printf "  Replay last:    ${YELLOW}voxfree-readloud-last${RESET} (or via indicator menu)\n"
+printf "  Indicator:      ${YELLOW}voxfree-indicator${RESET}\n"
 printf "  Quick test:     ${YELLOW}spd-say 'TTS is working'${RESET}\n\n"

@@ -3,7 +3,7 @@ Version: 0.1.0
 Architecture: all
 Maintainer: VoxFree Project <voxfree@example.com>
 Installed-Size: 200
-Depends: bash (>= 5.0), wl-clipboard, alsa-utils, libnotify-bin, wev, python3-venv, ffmpeg, sox, libsox-fmt-all
+Depends: bash (>= 5.0), wl-clipboard, alsa-utils, libnotify-bin, wev, python3-venv, ffmpeg, sox, libsox-fmt-all, python3-gi, gir1.2-ayatanaappindicator3-0.1
 Recommends: xdotool, ydotool, speech-dispatcher
 Suggests: mycroft-mimic3-tts
 Section: utils

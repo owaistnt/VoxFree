@@ -53,12 +53,14 @@ if [ "$INSTALL_MODE" = "system" ]; then
 
     section "Removing /usr/local/bin/voxfree-* commands"
     for CMD in voxfree voxfree-doctor voxfree-readloud voxfree-readloud-stop \
+               voxfree-readloud-last voxfree-indicator \
                voxfree-dictate voxfree-dictate-stop; do
         if [ -f "/usr/local/bin/$CMD" ]; then
             rm -f "/usr/local/bin/$CMD"
             ok "Removed /usr/local/bin/$CMD"
         fi
     done
+    rm -rf "/usr/local/bin/lib" 2>/dev/null || true
     # Legacy names (backward compat)
     for CMD in read-selection stop-reading speech-start speech-stop speech-to-type; do
         rm -f "/usr/local/bin/$CMD" 2>/dev/null && ok "Removed legacy /usr/local/bin/$CMD" || true
@@ -101,6 +103,12 @@ if [ "$INSTALL_MODE" = "system" ]; then
         sed -i '/system-db:local/d' /etc/dconf/profile/user
         ok "Removed system-db:local from dconf profile"
     fi
+
+    section "Removing indicator and state"
+    pkill -f voxfree-indicator 2>/dev/null || true
+    rm -f /etc/xdg/autostart/voxfree-indicator.desktop 2>/dev/null || true
+    rm -rf /tmp/voxfree 2>/dev/null || true
+    ok "Removed indicator + state files"
 
     section "Removing udev rule"
     if [ -f /etc/udev/rules.d/99-uinput.rules ]; then
@@ -148,12 +156,14 @@ else
 
     section "Removing ~/.local/bin/voxfree-* commands"
     for CMD in voxfree voxfree-doctor voxfree-readloud voxfree-readloud-stop \
+               voxfree-readloud-last voxfree-indicator \
                voxfree-dictate voxfree-dictate-stop whisper; do
         if [ -f "$ACTUAL_HOME/.local/bin/$CMD" ]; then
             rm -f "$ACTUAL_HOME/.local/bin/$CMD"
             ok "Removed ~/.local/bin/$CMD"
         fi
     done
+    rm -rf "$ACTUAL_HOME/.local/bin/lib" 2>/dev/null || true
 
     section "Removing ~/.local/share/voxfree/"
     if [ -d "$ACTUAL_HOME/.local/share/voxfree" ]; then
@@ -172,6 +182,12 @@ else
         sed -i '/# VoxFree/,+2d' "$ACTUAL_HOME/.profile"
         ok "Removed HF_HOME from ~/.profile"
     fi
+
+    section "Removing indicator and state"
+    pkill -f voxfree-indicator 2>/dev/null || true
+    rm -f "$ACTUAL_HOME/.config/autostart/voxfree-indicator.desktop" 2>/dev/null || true
+    rm -rf /tmp/voxfree 2>/dev/null || true
+    ok "Removed indicator + state files"
 
     section "Clearing GNOME shortcuts"
     USER_ID=$(id -u "$ACTUAL_USER" 2>/dev/null)
