@@ -182,6 +182,8 @@ Highlight any text on screen and press **F9** (ThinkPad) / **Super+Shift+R** (St
 - **Works in:** any app — browser, PDF, terminal, document, email
 - **System-wide:** all users, all sessions
 
+**GNOME Shell Extension Indicator:** VoxFree ships a native GNOME Shell extension (`voxfree@voxfree.app`) that adds a system tray indicator to the top panel. The indicator shows the current TTS state (speaking / idle), provides menu shortcuts for "Read Aloud", "Stop Reading", and "Replay Last", and autostarts with your session. A Python AppIndicator fallback is also included for non-GNOME desktops (KDE, XFCE, Budgie).
+
 → [ReadLoud documentation](ReadLoud/readloud.md)
 
 ---
@@ -212,6 +214,7 @@ VoxFree orchestrates several existing open-source tools. `deps.sh` (called autom
 | **aplay** | ALSA audio playback (part of `alsa-utils`) | `sudo apt install alsa-utils` |
 | **wl-paste** | Reads highlighted text from Wayland primary selection | `sudo apt install wl-clipboard` |
 | **speech-dispatcher** | Audio routing layer (configured for local/direct mode) | `sudo apt install speech-dispatcher` |
+| **python3-gi + AyatanaAppIndicator** | System tray indicator (non-GNOME fallback) | `sudo apt install python3-gi gir1.2-ayatanaappindicator3-0.1` |
 
 **Installing Mimic 3 separately:**
 ```bash
@@ -513,7 +516,12 @@ VoxFree/
 │   ├── readloud.md              ← TTS full documentation
 │   ├── voxfree-readloud.sh      ← F9 / Super+Shift+R: read selected text aloud (toggle)
 │   ├── voxfree-readloud-stop.sh ← force-stop TTS at any time
-│   └── voxfree-stop-all.sh      ← F11 / Super+Shift+K: stop all voice (TTS + STT)
+│   ├── voxfree-readloud-last.sh ← replay the last read text
+│   ├── voxfree-stop-all.sh      ← F11 / Super+Shift+K: stop all voice (TTS + STT)
+│   ├── voxfree-indicator          ← Python AppIndicator (system tray, non-GNOME fallback)
+│   ├── gnome-shell-extension/     ← Native GNOME Shell extension (top panel indicator)
+│   │   ├── extension.js
+│   │   └── metadata.json
 │
 └── SpeakToType/
     ├── speak-to-type.sh         ← STT installer (called by install.sh)
@@ -526,11 +534,11 @@ VoxFree/
 
 ```
 install.sh
-    ├── deps.sh              (installs all apt packages, mimic3, whisper, model)
-    ├── ReadLoud/readloud.sh       (configures speech-dispatcher, scripts, shortcuts)
-    └── SpeakToType/speak-to-type.sh  (configures scripts, shortcuts, udev rules)
+    ├── deps.sh                           (installs all apt packages, mimic3, whisper, model)
+    ├── ReadLoud/readloud.sh              (configures speech-dispatcher, scripts, shortcuts, indicator & extension)
+    └── SpeakToType/speak-to-type.sh      (configures scripts, shortcuts, udev rules)
 
-voxfree-doctor.sh        (run anytime to verify — independent of install)
+voxfree-doctor.sh         (run anytime to verify — independent of install)
 ```
 
 ---
