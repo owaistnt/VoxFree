@@ -4,6 +4,7 @@
 Provides an AppIndicator/Ayatana icon in the system tray with:
   - Read Aloud / Stop Reading toggle (context-sensitive)
   - Replay Last
+  - Voices (flat list with checkmark on current)
   - Quit
 
 Reads /tmp/voxfree/state (written by the core bash scripts) for state.
@@ -49,6 +50,8 @@ class ReadLoudIndicator:
         self.read_item = None
         self.stop_item = None
         self.replay_item = None
+        self.voices_submenu = None
+        self._voiceItems = []
 
     def read_state(self):
         try:
@@ -84,6 +87,95 @@ class ReadLoudIndicator:
     def on_replay_last(self, _widget):
         self.run_cmd("voxfree-readloud-last")
 
+    def on_voice_select(self, _widget, voice):
+        self.run_cmd("voxfree-stop-all")
+        self.run_cmd(f"voxfree-set-voice {voice}")
+        self._rebuild_voice_menu()
+        GLib.timeout_add_seconds(1, lambda: self._rebuild_voice_menu())
+
+    def _build_voice_submenu(self):
+        self.voices_submenu = Gtk.Menu()
+
+        # Check if mimic3 is available
+        try:
+            result = subprocess.run(
+                ["bash", "-c", "bash /usr/share/voxfree/lib/list-voices.sh 2>/dev/null || bash ~/.local/share/voxfree/lib/list-voices.sh 2>/dev/null"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            output = result.stdout.strip()
+        except Exception:
+            output = ""
+
+        if not output:
+            note = Gtk.MenuItem(label="Install Mimic 3 to select voices")
+            note.set_sensitive(False)
+            self.voices_submenu.append(note)
+        else:
+            for line in output.split('\n'):
+                parts = line.split('|')
+                if len(parts) != 4:
+                    continue
+                idx, voice, installed, is_current = parts
+
+                label = f" {voice}"
+                if is_current.strip() == '1':
+                    label = f"\u2713 {voice}"
+
+                item = Gtk.MenuItem(label=label)
+                item.connect("activate", self.on_voice_select, voice)
+                self.voices_submenu.append(item)
+
+        self.voices_submenu.show_all()
+        return self.voices_submenu
+
+    def _rebuild_voice_menu(self):
+        if not self.voices_submenu:
+            return
+
+        # Remove old items
+        for item in self._voiceItems:
+            self.voices_submenu.remove(item)
+        self._voiceItems = []
+
+        # Rebuild
+        try:
+            result = subprocess.run(
+                ["bash", "-c", "bash /usr/share/voxfree/lib/list-voices.sh 2>/dev/null || bash ~/.local/share/voxfree/lib/list-voices.sh 2>/dev/null"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            output = result.stdout.strip()
+        except Exception:
+            output = ""
+
+        if not output:
+            note = Gtk.MenuItem(label="Install Mimic 3 to select voices")
+            note.set_sensitive(False)
+            self.voices_submenu.append(note)
+            self.voices_submenu.show_all()
+            return
+
+        for line in output.split('\n'):
+            parts = line.split('|')
+            if len(parts) != 4:
+                continue
+            idx, voice, installed, is_current = parts
+
+            label = f" {voice}"
+            if is_current.strip() == '1':
+                label = f"\u2713 {voice}"
+
+            item = Gtk.MenuItem(label=label)
+            item.connect("activate", self.on_voice_select, voice)
+            self.voices_submenu.append(item)
+            self._voiceItems.append(item)
+
+        for item in self.voices_submenu.get_children():
+            item.show()
+
     def on_quit(self, _widget):
         Gtk.main_quit()
 
@@ -101,6 +193,10 @@ class ReadLoudIndicator:
         self.replay_item = Gtk.MenuItem(label="Replay Last")
         self.replay_item.connect("activate", self.on_replay_last)
         self.menu.append(self.replay_item)
+
+        voices_label = Gtk.MenuItem(label="Voices")
+        voices_label.set_submenu(self._build_voice_submenu())
+        self.menu.append(voices_label)
 
         self.menu.append(Gtk.SeparatorMenuItem())
 

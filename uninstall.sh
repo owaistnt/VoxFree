@@ -53,7 +53,7 @@ if [ "$INSTALL_MODE" = "system" ]; then
 
     section "Removing /usr/local/bin/voxfree-* commands"
     for CMD in voxfree voxfree-doctor voxfree-readloud voxfree-readloud-stop \
-               voxfree-readloud-last voxfree-indicator \
+               voxfree-readloud-last voxfree-indicator voxfree-set-voice \
                voxfree-dictate voxfree-dictate-stop; do
         if [ -f "/usr/local/bin/$CMD" ]; then
             rm -f "/usr/local/bin/$CMD"
@@ -160,7 +160,7 @@ else
 
     section "Removing ~/.local/bin/voxfree-* commands"
     for CMD in voxfree voxfree-doctor voxfree-readloud voxfree-readloud-stop \
-               voxfree-readloud-last voxfree-indicator \
+               voxfree-readloud-last voxfree-indicator voxfree-set-voice \
                voxfree-dictate voxfree-dictate-stop whisper; do
         if [ -f "$ACTUAL_HOME/.local/bin/$CMD" ]; then
             rm -f "$ACTUAL_HOME/.local/bin/$CMD"

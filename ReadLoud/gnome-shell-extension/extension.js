@@ -13,6 +13,8 @@ export default class VoxFreeExtension extends Extension {
     enable() {
         this._state = 'idle';
         this._lastText = '';
+        this._voicesLoaded = false;
+        this._voiceItemIndices = [];
 
         this._indicator = new PanelMenu.Button(0.0, this.metadata.name, false);
 
@@ -34,6 +36,9 @@ export default class VoxFreeExtension extends Extension {
         this._replayItem.connect('activate', () => this._exec('voxfree-readloud-last'));
         this._indicator.menu.addMenuItem(this._replayItem);
 
+        this._voicesSeparator = new PopupMenu.PopupSeparatorMenuItem('Voices');
+        this._voicesSeparatorIndex = this._indicator.menu.addMenuItem(this._voicesSeparator);
+
         this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         const quitItem = new PopupMenu.PopupMenuItem('Quit');
@@ -44,6 +49,7 @@ export default class VoxFreeExtension extends Extension {
 
         this._readState();
         this._updateUI();
+        this._loadVoices();
         this._timeoutId = GLib.timeout_add(
             GLib.PRIORITY_DEFAULT, POLL_INTERVAL, () => {
                 this._readState();
@@ -69,6 +75,65 @@ export default class VoxFreeExtension extends Extension {
         GLib.spawn_command_line_async(
             `bash -c "nohup ${cmd} >/dev/null 2>&1 &"`
         );
+    }
+
+    _loadVoices() {
+        // Remove old voice items
+        for (const idx of this._voiceItemIndices) {
+            this._indicator.menu.removeMenuItem(idx);
+        }
+        this._voiceItemIndices = [];
+
+        const voiceScripts = [
+            '/usr/share/voxfree/lib/list-voices.sh',
+            `${GLib.get_home_dir()}/.local/share/voxfree/lib/list-voices.sh`,
+        ];
+
+        let voicesOutput = '';
+        for (const script of voiceScripts) {
+            try {
+                const file = Gio.File.new_for_path(script);
+                if (file.query_exists(null)) {
+                    const [success, stdout] = GLib.spawn_command_line_sync(
+                        `bash "${script}"`
+                    );
+                    if (success) {
+                        voicesOutput = stdout.toString();
+                        break;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        if (!voicesOutput.trim()) {
+            const note = new PopupMenu.PopupMenuItem('Install Mimic 3 to select voices');
+            note.setSensitive(false);
+            this._indicator.menu.insertMenuItem(note, this._voicesSeparatorIndex);
+            this._voiceItemIndices.push(this._voicesSeparatorIndex);
+            return;
+        }
+
+        const lines = voicesOutput.trim().split('\n');
+        for (const line of lines) {
+            const parts = line.trim().split('|');
+            if (parts.length !== 4) continue;
+            const voice = parts[1];
+            const isCurrent = parts[3].trim();
+            const label = isCurrent === '1' ? '\u2713 ' + voice : ' ' + voice;
+
+            const item = new PopupMenu.PopupMenuItem(label);
+            item.connect('activate', () => {
+                this._exec('voxfree-stop-all');
+                this._exec(`voxfree-set-voice ${voice}`);
+                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                    this._loadVoices();
+                    return GLib.SOURCE_REMOVE;
+                });
+            });
+            const insertIdx = this._voicesSeparatorIndex + 1;
+            this._indicator.menu.insertMenuItem(item, insertIdx);
+            this._voiceItemIndices.push(insertIdx);
+        }
     }
 
     _readState() {

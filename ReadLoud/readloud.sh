@@ -143,13 +143,14 @@ install_script() {
     fi
 }
 
-install_script "voxfree-readloud.sh"      "voxfree-readloud"
-install_script "voxfree-readloud-stop.sh" "voxfree-readloud-stop"
-install_script "voxfree-stop-all.sh"      "voxfree-stop-all"
-install_script "voxfree-readloud-last.sh" "voxfree-readloud-last"
-install_script "voxfree-indicator"        "voxfree-indicator"
+install_script "voxfree-readloud.sh"         "voxfree-readloud"
+install_script "voxfree-readloud-stop.sh"    "voxfree-readloud-stop"
+install_script "voxfree-stop-all.sh"         "voxfree-stop-all"
+install_script "voxfree-readloud-last.sh"    "voxfree-readloud-last"
+install_script "voxfree-indicator"           "voxfree-indicator"
+install_script "voxfree-set-voice.sh"        "voxfree-set-voice"
 
-# Install state.sh library alongside the scripts
+# Install lib scripts alongside the scripts
 STATE_LIB_DEST="$BIN_DIR/lib"
 mkdir -p "$STATE_LIB_DEST"
 if [ -f "$VOXFREE_DIR/lib/state.sh" ]; then
@@ -157,6 +158,12 @@ if [ -f "$VOXFREE_DIR/lib/state.sh" ]; then
     chmod 644 "$STATE_LIB_DEST/state.sh"
     [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$STATE_LIB_DEST" "$STATE_LIB_DEST/state.sh" 2>/dev/null || true
     ok "$STATE_LIB_DEST/state.sh"
+fi
+if [ -f "$VOXFREE_DIR/lib/list-voices.sh" ]; then
+    cp "$VOXFREE_DIR/lib/list-voices.sh" "$STATE_LIB_DEST/list-voices.sh"
+    chmod 644 "$STATE_LIB_DEST/list-voices.sh"
+    [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$STATE_LIB_DEST" "$STATE_LIB_DEST/list-voices.sh" 2>/dev/null || true
+    ok "$STATE_LIB_DEST/list-voices.sh"
 fi
 
 # ── Step 5: GNOME keyboard shortcuts ─────────────────────────────────────────

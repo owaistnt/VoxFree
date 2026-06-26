@@ -298,6 +298,21 @@ if [ "$CHECK_TTS" = true ]; then
         warn "State file not found — will be created on first readloud"
     fi
 
+    # voxfree-set-voice script
+    if [ -x /usr/local/bin/voxfree-set-voice ] || [ -x "$HOME/.local/bin/voxfree-set-voice" ]; then
+        ok "voxfree-set-voice installed (voice selector)"
+    else
+        warn "voxfree-set-voice not installed — run readloud.sh to install"
+    fi
+
+    # list-voices.sh library
+    VOICE_LIST_SCRIPT=$(ls /usr/local/bin/lib/list-voices.sh ~/.local/bin/lib/list-voices.sh 2>/dev/null | head -1)
+    if [ -f "$VOICE_LIST_SCRIPT" ]; then
+        ok "list-voices.sh installed (voice listing)"
+    else
+        warn "list-voices.sh not found — run readloud.sh to install"
+    fi
+
 fi
 
 fi # end TTS checks
