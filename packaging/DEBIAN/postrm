@@ -4,6 +4,7 @@ case "$1" in
     purge)
         # Remove all system-level VoxFree traces
         rm -rf /usr/share/voxfree/
+        rm -rf /usr/share/gnome-shell/extensions/voxfree@voxfree.app/
         rm -rf /etc/voxfree/
         sed -i '/^HF_HOME\|^HF_HUB_DISABLE_TELEMETRY\|^HF_HUB_OFFLINE/d' /etc/environment 2>/dev/null || true
         rm -f /etc/udev/rules.d/99-uinput.rules && udevadm trigger 2>/dev/null || true

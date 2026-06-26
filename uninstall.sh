@@ -104,11 +104,15 @@ if [ "$INSTALL_MODE" = "system" ]; then
         ok "Removed system-db:local from dconf profile"
     fi
 
-    section "Removing indicator and state"
+    section "Removing indicator, extension, and state"
     pkill -f voxfree-indicator 2>/dev/null || true
     rm -f /etc/xdg/autostart/voxfree-indicator.desktop 2>/dev/null || true
     rm -rf /tmp/voxfree 2>/dev/null || true
-    ok "Removed indicator + state files"
+    if command -v gnome-extensions >/dev/null 2>&1; then
+        sudo -u "$ACTUAL_USER" gnome-extensions disable voxfree@voxfree.app 2>/dev/null || true
+    fi
+    rm -rf /usr/share/gnome-shell/extensions/voxfree@voxfree.app/ 2>/dev/null || true
+    ok "Removed indicator + extension + state files"
 
     section "Removing udev rule"
     if [ -f /etc/udev/rules.d/99-uinput.rules ]; then
@@ -183,11 +187,15 @@ else
         ok "Removed HF_HOME from ~/.profile"
     fi
 
-    section "Removing indicator and state"
+    section "Removing indicator, extension, and state"
     pkill -f voxfree-indicator 2>/dev/null || true
     rm -f "$ACTUAL_HOME/.config/autostart/voxfree-indicator.desktop" 2>/dev/null || true
     rm -rf /tmp/voxfree 2>/dev/null || true
-    ok "Removed indicator + state files"
+    if command -v gnome-extensions >/dev/null 2>&1; then
+        gnome-extensions disable voxfree@voxfree.app 2>/dev/null || true
+    fi
+    rm -rf "$ACTUAL_HOME/.local/share/gnome-shell/extensions/voxfree@voxfree.app/" 2>/dev/null || true
+    ok "Removed indicator + extension + state files"
 
     section "Clearing GNOME shortcuts"
     USER_ID=$(id -u "$ACTUAL_USER" 2>/dev/null)

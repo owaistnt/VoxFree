@@ -1,0 +1,7 @@
+{
+  "name": "VoxFree ReadLoud",
+  "description": "System tray indicator for VoxFree — read selected text aloud with offline TTS",
+  "uuid": "voxfree@voxfree.app",
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "url": "https://github.com/owaisforandroid/VoxFree"
+}

@@ -2,6 +2,13 @@
 set -e
 case "$1" in
     remove|purge)
+        # Disable GNOME Shell extension
+        if command -v gnome-extensions >/dev/null 2>&1; then
+            gnome-extensions disable voxfree@voxfree.app 2>/dev/null || true
+        fi
+        # Remove extension files
+        rm -rf /usr/share/gnome-shell/extensions/voxfree@voxfree.app/
+
         # Remove installed bin wrappers
         for CMD in voxfree voxfree-doctor voxfree-readloud voxfree-readloud-stop \
                    voxfree-stop-all voxfree-dictate voxfree-dictate-stop; do

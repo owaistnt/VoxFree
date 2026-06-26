@@ -53,6 +53,18 @@ case "$1" in
             done
             install -m 644 "$SHARE/lib/state.sh" "$UHOME/.local/bin/lib/state.sh" 2>/dev/null || true
         done
+        # Install GNOME Shell extension
+        EXT_DIR="/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
+        mkdir -p "$EXT_DIR"
+        if [ -d "$SHARE/ReadLoud/gnome-shell-extension" ]; then
+            cp "$SHARE/ReadLoud/gnome-shell-extension/"*.js "$SHARE/ReadLoud/gnome-shell-extension/"*.json "$EXT_DIR/" 2>/dev/null || true
+        fi
+
+        # Enable extension if gnome-extensions is available
+        if command -v gnome-extensions >/dev/null 2>&1; then
+            gnome-extensions enable voxfree@voxfree.app 2>/dev/null || true
+        fi
+
         # Fresh install: run interactive configuration if a terminal is available.
         # Upgrade (2 is the old version passed by dpkg): scripts are updated above,
         # no interactive setup needed.

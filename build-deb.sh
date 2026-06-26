@@ -37,6 +37,7 @@ mkdir -p "$STAGING/usr/share/voxfree/SpeakToType"
 mkdir -p "$STAGING/usr/share/voxfree/lib"
 mkdir -p "$STAGING/usr/share/doc/voxfree"
 mkdir -p "$STAGING/usr/local/bin"
+mkdir -p "$STAGING/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
 
 # ── Copy VoxFree scripts ──────────────────────────────────────────────────────
 # Root scripts
@@ -49,6 +50,16 @@ for F in readloud.sh readloud.md voxfree-readloud.sh voxfree-readloud-stop.sh \
          voxfree-stop-all.sh voxfree-readloud-last.sh voxfree-indicator; do
     [ -f "$SCRIPT_DIR/ReadLoud/$F" ] && \
         cp "$SCRIPT_DIR/ReadLoud/$F" "$STAGING/usr/share/voxfree/ReadLoud/"
+done
+
+# GNOME Shell extension
+mkdir -p "$STAGING/usr/share/voxfree/ReadLoud/gnome-shell-extension"
+for F in extension.js metadata.json; do
+    [ -f "$SCRIPT_DIR/ReadLoud/gnome-shell-extension/$F" ] && \
+        cp "$SCRIPT_DIR/ReadLoud/gnome-shell-extension/$F" \
+           "$STAGING/usr/share/gnome-shell/extensions/voxfree@voxfree.app/" && \
+        cp "$SCRIPT_DIR/ReadLoud/gnome-shell-extension/$F" \
+           "$STAGING/usr/share/voxfree/ReadLoud/gnome-shell-extension/"
 done
 
 # SpeakToType scripts

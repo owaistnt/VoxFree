@@ -272,6 +272,29 @@ DESKTOPF
         chmod 644 "$AUTOSTART_DIR/voxfree-indicator.desktop"
         [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$AUTOSTART_DIR/voxfree-indicator.desktop" 2>/dev/null || true
         ok "Autostart configured: $AUTOSTART_DIR/voxfree-indicator.desktop"
+
+        # Install GNOME Shell extension (replaces Python indicator on GNOME)
+        if [ "$INSTALL_MODE" = "system" ]; then
+            EXT_DIR="/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
+        else
+            EXT_DIR="$ACTUAL_HOME/.local/share/gnome-shell/extensions/voxfree@voxfree.app"
+        fi
+        if [ -d "$RL_DIR/gnome-shell-extension" ]; then
+            mkdir -p "$EXT_DIR"
+            cp "$RL_DIR/gnome-shell-extension/"*.js "$RL_DIR/gnome-shell-extension/"*.json "$EXT_DIR/" 2>/dev/null || true
+            chmod 644 "$EXT_DIR"/*.json "$EXT_DIR"/*.js 2>/dev/null || true
+            if [ "$INSTALL_MODE" != "system" ]; then
+                chown -R "$ACTUAL_USER:$ACTUAL_USER" "$EXT_DIR" 2>/dev/null || true
+            fi
+            if command -v gnome-extensions >/dev/null 2>&1; then
+                if [ "$INSTALL_MODE" = "system" ]; then
+                    sudo -u "$ACTUAL_USER" gnome-extensions enable voxfree@voxfree.app 2>/dev/null || true
+                else
+                    gnome-extensions enable voxfree@voxfree.app 2>/dev/null || true
+                fi
+            fi
+            ok "GNOME Shell extension installed to $EXT_DIR"
+        fi
     else
         info "Skipping autostart. Run 'voxfree-indicator' manually to start the indicator."
     fi
