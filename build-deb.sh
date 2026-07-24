@@ -41,13 +41,13 @@ mkdir -p "$STAGING/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
 
 # ── Copy VoxFree scripts ──────────────────────────────────────────────────────
 # Root scripts
-for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-switch.sh voxfree-voice.sh voxfree-set-voice.sh VERSION; do
+for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-switch.sh voxfree-voice.sh voxfree-set-voice.sh voxfree-set-speed.sh VERSION; do
     [ -f "$SCRIPT_DIR/$F" ] && cp "$SCRIPT_DIR/$F" "$STAGING/usr/share/voxfree/"
 done
 
 # ReadLoud scripts
 for F in readloud.sh readloud.md voxfree-readloud.sh voxfree-readloud-stop.sh \
-         voxfree-stop-all.sh voxfree-readloud-last.sh voxfree-indicator; do
+          voxfree-stop-all.sh voxfree-readloud-last.sh voxfree-indicator voxfree-readloud-last.sh; do
     [ -f "$SCRIPT_DIR/ReadLoud/$F" ] && \
         cp "$SCRIPT_DIR/ReadLoud/$F" "$STAGING/usr/share/voxfree/ReadLoud/"
 done
@@ -70,7 +70,7 @@ for F in speak-to-type.sh speak-to-type.md voxfree-dictate.sh voxfree-dictate-st
 done
 
 # lib/
-for F in detect.sh keyboard-layout.sh state.sh list-voices.sh; do
+for F in detect.sh keyboard-layout.sh state.sh list-voices.sh set-speed.sh; do
     [ -f "$SCRIPT_DIR/lib/$F" ] && cp "$SCRIPT_DIR/lib/$F" "$STAGING/usr/share/voxfree/lib/"
 done
 
@@ -86,6 +86,7 @@ case "${1:-}" in
     --version|-v)  printf "VoxFree %s\n" "$VERSION" ;;
     --doctor)      shift; exec bash "$VOXFREE_HOME/voxfree-doctor.sh" "$@" ;;
     --voice)       shift; exec bash "$VOXFREE_HOME/voxfree-voice.sh" "$@" ;;
+    --speed)       shift; exec bash "$VOXFREE_HOME/voxfree-set-speed.sh" "$@" ;;
     --switch)      shift; exec bash "$VOXFREE_HOME/voxfree-switch.sh" "$@" ;;
     --install)     shift; exec bash "$VOXFREE_HOME/install.sh" "$@" ;;
     --uninstall)   shift; exec bash "$VOXFREE_HOME/uninstall.sh" "$@" ;;
@@ -96,6 +97,7 @@ case "${1:-}" in
         printf "  --uninstall [--purge] [--user]           Remove VoxFree\n"
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
+        printf "  --speed [slow|default|fast]              Change TTS playback speed\n"
         printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
         printf "Keyboard shortcuts:\n"
@@ -134,7 +136,13 @@ cat > "$STAGING/usr/local/bin/voxfree-set-voice" << 'WRAPEOF'
 exec bash /usr/share/voxfree/voxfree-set-voice.sh "$@"
 WRAPEOF
 
-chmod 755 "$STAGING/usr/local/bin/voxfree" "$STAGING/usr/local/bin/voxfree-doctor" "$STAGING/usr/local/bin/voxfree-voice" "$STAGING/usr/local/bin/voxfree-uninstall" "$STAGING/usr/local/bin/voxfree-set-voice"
+cat > "$STAGING/usr/local/bin/voxfree-set-speed" << 'WRAPEOF'
+#!/bin/bash
+# voxfree-set-speed — VoxFree TTS playback speed setter (installed by .deb)
+exec bash /usr/share/voxfree/voxfree-set-speed.sh "$@"
+WRAPEOF
+
+chmod 755 "$STAGING/usr/local/bin/voxfree" "$STAGING/usr/local/bin/voxfree-doctor" "$STAGING/usr/local/bin/voxfree-voice" "$STAGING/usr/local/bin/voxfree-uninstall" "$STAGING/usr/local/bin/voxfree-set-voice" "$STAGING/usr/local/bin/voxfree-set-speed"
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 cp "$SCRIPT_DIR/README.md" "$STAGING/usr/share/doc/voxfree/"

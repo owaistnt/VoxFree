@@ -19,13 +19,15 @@ case "$1" in
             DEST="${F##*:}"
             [ -f "$SHARE/$SRC" ] && install -m 755 "$SHARE/$SRC" "$BIN/$DEST"
         done
-        # Install state library
+        # Install lib libraries
+        mkdir -p "$BIN/lib"
         install -m 644 "$SHARE/lib/state.sh" "$BIN/lib/state.sh" 2>/dev/null || true
+        install -m 644 "$SHARE/lib/set-speed.sh" "$BIN/lib/set-speed.sh" 2>/dev/null || true
 
         # Re-copy the thin CLI wrappers that live in /usr/share/voxfree/ but
         # are also exposed in /usr/local/bin/ via the deb. This keeps them in
         # sync when upgrading via dpkg without re-running install.sh.
-        for F in voxfree voxfree-voice voxfree-uninstall; do
+        for F in voxfree voxfree-voice voxfree-uninstall voxfree-set-speed; do
             [ -f "$SHARE/$F" ] && install -m 755 "$SHARE/$F" "$BIN/$F"
         done
 
@@ -52,6 +54,7 @@ case "$1" in
                     install -m 755 "$SHARE/$SRC" "$UHOME/.local/bin/$DEST" 2>/dev/null || true
             done
             install -m 644 "$SHARE/lib/state.sh" "$UHOME/.local/bin/lib/state.sh" 2>/dev/null || true
+            install -m 644 "$SHARE/lib/set-speed.sh" "$UHOME/.local/bin/lib/set-speed.sh" 2>/dev/null || true
         done
         # Install GNOME Shell extension — system level
         EXT_DIR="/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
@@ -106,9 +109,10 @@ case "$1" in
             echo "VoxFree upgraded to $(cat $SHARE/VERSION 2>/dev/null || echo unknown)."
             echo "Runtime scripts updated. No reconfiguration needed."
             echo ""
-            echo "New in 0.4.0: system tray indicator"
-            echo "  voxfree-indicator      — start the indicator"
-            echo "  voxfree-readloud-last  — replay last spoken text"
+            echo "New in 0.6.0: playback speed presets"
+            echo "  voxfree --speed slow    — 1.15x slower"
+            echo "  voxfree --speed default — normal speed (1.0x)"
+            echo "  voxfree --speed fast    — 0.85x faster"
             echo ""
             echo "Run 'voxfree --doctor' to verify."
             echo ""
