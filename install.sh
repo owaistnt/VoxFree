@@ -154,10 +154,11 @@ if [ "$INSTALL_MODE" = "system" ]; then
     mkdir -p "$WRAPPER_DATA_DIR"
     # Skip copy if already running from the target directory (e.g. postinst via .deb)
     if [ "$(realpath "$SCRIPT_DIR")" != "$(realpath "$WRAPPER_DATA_DIR")" ]; then
-        cp "$SCRIPT_DIR/voxfree-doctor.sh"  "$WRAPPER_DATA_DIR/"
-        cp "$SCRIPT_DIR/voxfree-voice.sh"   "$WRAPPER_DATA_DIR/"
-        cp "$SCRIPT_DIR/voxfree-set-speed.sh" "$WRAPPER_DATA_DIR/"
-        cp "$SCRIPT_DIR/install.sh"         "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/voxfree-doctor.sh"  "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/voxfree-voice.sh"   "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/voxfree-set-speed.sh" "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/voxfree-start-extension.sh" "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/install.sh"         "$WRAPPER_DATA_DIR/"
         cp "$SCRIPT_DIR/deps.sh"            "$WRAPPER_DATA_DIR/"
         cp "$SCRIPT_DIR/uninstall.sh"       "$WRAPPER_DATA_DIR/" 2>/dev/null || true
         cp "$SCRIPT_DIR/VERSION"            "$WRAPPER_DATA_DIR/"
@@ -175,6 +176,7 @@ else
     cp "$SCRIPT_DIR/voxfree-doctor.sh"  "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/voxfree-voice.sh"   "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/voxfree-set-speed.sh" "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/voxfree-start-extension.sh" "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/install.sh"         "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/deps.sh"            "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/uninstall.sh"       "$WRAPPER_DATA_DIR/" 2>/dev/null || true
@@ -202,6 +204,7 @@ case "\${1:-}" in
     --doctor)      shift; exec bash "\$VOXFREE_HOME/voxfree-doctor.sh" "\$@" ;;
     --voice)       shift; exec bash "\$VOXFREE_HOME/voxfree-voice.sh" "\$@" ;;
     --speed)       shift; exec bash "\$VOXFREE_HOME/voxfree-set-speed.sh" "\$@" ;;
+    --start-extension) shift; exec bash "\$VOXFREE_HOME/voxfree-start-extension.sh" "\$@" ;;
     --switch)      shift; exec bash "\$VOXFREE_HOME/voxfree-switch.sh" "\$@" ;;
     --install)     shift; exec bash "\$VOXFREE_HOME/install.sh" "\$@" ;;
     --uninstall)   shift; exec bash "\$VOXFREE_HOME/uninstall.sh" "\$@" ;;
@@ -213,6 +216,7 @@ case "\${1:-}" in
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
         printf "  --speed [slow|default|fast]              Change TTS playback speed\n"
+        printf "  --start-extension                        Enable the GNOME Shell extension\n"
         printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
         printf "Keyboard shortcuts:\n"

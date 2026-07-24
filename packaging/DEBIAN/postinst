@@ -27,7 +27,7 @@ case "$1" in
         # Re-copy the thin CLI wrappers that live in /usr/share/voxfree/ but
         # are also exposed in /usr/local/bin/ via the deb. This keeps them in
         # sync when upgrading via dpkg without re-running install.sh.
-        for F in voxfree voxfree-voice voxfree-uninstall voxfree-set-speed; do
+        for F in voxfree voxfree-voice voxfree-uninstall voxfree-set-speed voxfree-start-extension; do
             [ -f "$SHARE/$F" ] && install -m 755 "$SHARE/$F" "$BIN/$F"
         done
 

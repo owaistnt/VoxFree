@@ -171,6 +171,12 @@ The long-term goal is to make the Linux desktop feel more immersive and accessib
 
 ---
 
+## What's New in 0.6.1
+
+- **Start Extension CLI** — Run `voxfree --start-extension` to enable the GNOME Shell extension from the command line. Useful when the extension was disabled via the Extensions app or crashed.
+
+---
+
 ## What's New in 0.6.0
 
 - **Playback Speed Presets** — Run `voxfree --speed` to choose between Slow (1.15x), Default (1.0x), and Fast (0.85x) playback speeds. Change it anytime.
@@ -457,6 +463,7 @@ voxfree --uninstall [--purge] [--user]            Remove VoxFree
 voxfree --doctor [--tts|--stt] [--fix]            Health check
 voxfree --voice                                   Change TTS voice
 voxfree --speed [slow|default|fast]               Change TTS playback speed
+voxfree --start-extension                         Enable the GNOME Shell extension
 voxfree --switch [thinkpad|standard]              Switch keyboard shortcut layout
 voxfree --version                                 Show version
 ```

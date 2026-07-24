@@ -41,7 +41,7 @@ mkdir -p "$STAGING/usr/share/gnome-shell/extensions/voxfree@voxfree.app"
 
 # ── Copy VoxFree scripts ──────────────────────────────────────────────────────
 # Root scripts
-for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-switch.sh voxfree-voice.sh voxfree-set-voice.sh voxfree-set-speed.sh VERSION; do
+for F in install.sh deps.sh uninstall.sh voxfree-doctor.sh voxfree-switch.sh voxfree-voice.sh voxfree-set-voice.sh voxfree-set-speed.sh voxfree-start-extension.sh VERSION; do
     [ -f "$SCRIPT_DIR/$F" ] && cp "$SCRIPT_DIR/$F" "$STAGING/usr/share/voxfree/"
 done
 
@@ -87,6 +87,7 @@ case "${1:-}" in
     --doctor)      shift; exec bash "$VOXFREE_HOME/voxfree-doctor.sh" "$@" ;;
     --voice)       shift; exec bash "$VOXFREE_HOME/voxfree-voice.sh" "$@" ;;
     --speed)       shift; exec bash "$VOXFREE_HOME/voxfree-set-speed.sh" "$@" ;;
+    --start-extension) shift; exec bash "$VOXFREE_HOME/voxfree-start-extension.sh" "$@" ;;
     --switch)      shift; exec bash "$VOXFREE_HOME/voxfree-switch.sh" "$@" ;;
     --install)     shift; exec bash "$VOXFREE_HOME/install.sh" "$@" ;;
     --uninstall)   shift; exec bash "$VOXFREE_HOME/uninstall.sh" "$@" ;;
@@ -98,6 +99,7 @@ case "${1:-}" in
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
         printf "  --speed [slow|default|fast]              Change TTS playback speed\n"
+        printf "  --start-extension                        Enable the GNOME Shell extension\n"
         printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
         printf "Keyboard shortcuts:\n"
@@ -142,7 +144,13 @@ cat > "$STAGING/usr/local/bin/voxfree-set-speed" << 'WRAPEOF'
 exec bash /usr/share/voxfree/voxfree-set-speed.sh "$@"
 WRAPEOF
 
-chmod 755 "$STAGING/usr/local/bin/voxfree" "$STAGING/usr/local/bin/voxfree-doctor" "$STAGING/usr/local/bin/voxfree-voice" "$STAGING/usr/local/bin/voxfree-uninstall" "$STAGING/usr/local/bin/voxfree-set-voice" "$STAGING/usr/local/bin/voxfree-set-speed"
+cat > "$STAGING/usr/local/bin/voxfree-start-extension" << 'WRAPEOF'
+#!/bin/bash
+# voxfree-start-extension — Enable the GNOME Shell extension (installed by .deb)
+exec bash /usr/share/voxfree/voxfree-start-extension.sh "$@"
+WRAPEOF
+
+chmod 755 "$STAGING/usr/local/bin/voxfree" "$STAGING/usr/local/bin/voxfree-doctor" "$STAGING/usr/local/bin/voxfree-voice" "$STAGING/usr/local/bin/voxfree-uninstall" "$STAGING/usr/local/bin/voxfree-set-voice" "$STAGING/usr/local/bin/voxfree-set-speed" "$STAGING/usr/local/bin/voxfree-start-extension"
 
 # ── Documentation ─────────────────────────────────────────────────────────────
 cp "$SCRIPT_DIR/README.md" "$STAGING/usr/share/doc/voxfree/"
