@@ -98,7 +98,7 @@ case "${1:-}" in
         printf "  --uninstall [--purge] [--user]           Remove VoxFree\n"
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
-        printf "  --speed [slow|default|fast]              Change TTS playback speed\n"
+        printf "  --speed [slow|slower|default|fast]        Change TTS playback speed\n"
         printf "  --start-extension                        Enable the GNOME Shell extension\n"
         printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
