@@ -53,6 +53,11 @@ case "$1" in
                 [ -f "$SHARE/$SRC" ] && [ -d "$UHOME/.local/bin" ] && \
                     install -m 755 "$SHARE/$SRC" "$UHOME/.local/bin/$DEST" 2>/dev/null || true
             done
+            # Also sync the main CLI wrapper and thin wrappers to user-level
+            for F in voxfree voxfree-doctor voxfree-voice voxfree-uninstall voxfree-set-speed voxfree-start-extension; do
+                [ -f "$SHARE/$F" ] && [ -d "$UHOME/.local/bin" ] && \
+                    install -m 755 "$SHARE/$F" "$UHOME/.local/bin/$F" 2>/dev/null || true
+            done
             install -m 644 "$SHARE/lib/state.sh" "$UHOME/.local/bin/lib/state.sh" 2>/dev/null || true
             install -m 644 "$SHARE/lib/set-speed.sh" "$UHOME/.local/bin/lib/set-speed.sh" 2>/dev/null || true
         done
