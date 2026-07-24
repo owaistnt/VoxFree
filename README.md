@@ -436,9 +436,10 @@ Interactive playback speed selector for ReadLoud. Choose between Slow (1.15x), D
 
 ```bash
 voxfree --speed              # interactive selector
-voxfree --speed slow         # set slow playback
-voxfree --speed default      # set default playback
-voxfree --speed fast         # set fast playback
+voxfree --speed slow         # set slow playback (1.15x)
+voxfree --speed slower       # set slower playback (1.25x)
+voxfree --speed default      # set default playback (1.0x)
+voxfree --speed fast         # set fast playback (0.85x)
 voxfree --speed current      # show current speed
 ```
 
@@ -462,7 +463,7 @@ voxfree --install [--tts|--stt|--all] [--user]   Install or reconfigure
 voxfree --uninstall [--purge] [--user]            Remove VoxFree
 voxfree --doctor [--tts|--stt] [--fix]            Health check
 voxfree --voice                                   Change TTS voice
-voxfree --speed [slow|default|fast]               Change TTS playback speed
+voxfree --speed [slow|slower|default|fast]        Change TTS playback speed
 voxfree --start-extension                         Enable the GNOME Shell extension
 voxfree --switch [thinkpad|standard]              Switch keyboard shortcut layout
 voxfree --version                                 Show version

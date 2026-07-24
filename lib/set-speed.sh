@@ -24,6 +24,7 @@ resolve_speed() {
 
     case "$preset" in
         slow)     SPEED_PRESET="slow";     SPEED_SCALE="1.15" ;;
+        slower)   SPEED_PRESET="slower";   SPEED_SCALE="1.25" ;;
         fast)     SPEED_PRESET="fast";     SPEED_SCALE="0.85" ;;
         *)        SPEED_PRESET="default";  SPEED_SCALE="1.0" ;;
     esac

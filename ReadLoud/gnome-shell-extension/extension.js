@@ -44,6 +44,7 @@ export default class VoxFreeExtension extends Extension {
         const speeds = [
             { label: 'Default (1.0x)', value: 'default' },
             { label: 'Slow (1.15x)', value: 'slow' },
+            { label: 'Slower (1.25x)', value: 'slower' },
             { label: 'Fast (0.85x)', value: 'fast' },
         ];
 

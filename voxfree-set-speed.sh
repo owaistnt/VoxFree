@@ -18,6 +18,7 @@ show_current() {
     local label
     case "$SPEED_PRESET" in
         slow)     label="Slow (${SPEED_SCALE}x)" ;;
+        slower)   label="Slower (${SPEED_SCALE}x)" ;;
         fast)     label="Fast (${SPEED_SCALE}x)" ;;
         *)        label="Default (${SPEED_SCALE}x)" ;;
     esac
@@ -39,10 +40,10 @@ fi
 
 SPEED=$(echo "$SPEED" | tr '[:upper:]' '[:lower:]')
 case "$SPEED" in
-    slow|fast|default) ;;
+    slow|slower|fast|default) ;;
     *)
         printf "Invalid speed: %s\n" "$SPEED" >&2
-        printf "Valid options: slow, default, fast\n" >&2
+        printf "Valid options: slow, slower, default, fast\n" >&2
         exit 1
         ;;
 esac
