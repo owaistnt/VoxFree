@@ -156,6 +156,7 @@ if [ "$INSTALL_MODE" = "system" ]; then
     if [ "$(realpath "$SCRIPT_DIR")" != "$(realpath "$WRAPPER_DATA_DIR")" ]; then
         cp "$SCRIPT_DIR/voxfree-doctor.sh"  "$WRAPPER_DATA_DIR/"
         cp "$SCRIPT_DIR/voxfree-voice.sh"   "$WRAPPER_DATA_DIR/"
+        cp "$SCRIPT_DIR/voxfree-set-speed.sh" "$WRAPPER_DATA_DIR/"
         cp "$SCRIPT_DIR/install.sh"         "$WRAPPER_DATA_DIR/"
         cp "$SCRIPT_DIR/deps.sh"            "$WRAPPER_DATA_DIR/"
         cp "$SCRIPT_DIR/uninstall.sh"       "$WRAPPER_DATA_DIR/" 2>/dev/null || true
@@ -173,6 +174,7 @@ else
     mkdir -p "$WRAPPER_DATA_DIR"
     cp "$SCRIPT_DIR/voxfree-doctor.sh"  "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/voxfree-voice.sh"   "$WRAPPER_DATA_DIR/"
+    cp "$SCRIPT_DIR/voxfree-set-speed.sh" "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/install.sh"         "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/deps.sh"            "$WRAPPER_DATA_DIR/"
     cp "$SCRIPT_DIR/uninstall.sh"       "$WRAPPER_DATA_DIR/" 2>/dev/null || true
