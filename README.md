@@ -1,7 +1,7 @@
 # VoxFree
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
-![Version](https://img.shields.io/badge/version-0.3.4-blue.svg)
+![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Ubuntu%2024.04%20GNOME%2FWayland-orange.svg)
 
 **Offline voice tools for Ubuntu 24.04 GNOME/Wayland.**
@@ -171,6 +171,15 @@ The long-term goal is to make the Linux desktop feel more immersive and accessib
 
 ---
 
+## What's New in 0.5.0
+
+- **Voice Selector** — Run `voxfree --voice` to browse, preview, and switch between all available Mimic 3 voices. Uninstalled voices are downloaded automatically.
+- **GNOME Shell Extension Indicator** — A native top-panel indicator (`voxfree@voxfree.app`) showing TTS state (speaking/idle), shortcut menu items, and a flat list of all voices with the current voice marked. Selecting a voice from the menu stops playback and switches instantly.
+- **Voice List Library** — Shared `lib/list-voices.sh` used by the indicator, voice selector, and `voxfree --voice` for a unified view of available and installed voices.
+- **Bug Fixes** — Duplicate voices in the indicator list, extension upgrade compatibility.
+
+---
+
 ## Sub-projects
 
 ### 🔊 ReadLoud — Text-to-Speech
@@ -273,10 +282,10 @@ Pre-built `.deb` packages are available in the [`releases/`](releases/) folder f
 
 ```bash
 # 1. Download the .deb
-wget https://github.com/owaistnt/VoxFree/raw/main/releases/voxfree_0.3.4_all.deb
+wget https://github.com/owaistnt/VoxFree/raw/main/releases/voxfree_0.5.0_all.deb
 
 # 2. Install
-sudo dpkg -i voxfree_0.3.4_all.deb
+sudo dpkg -i voxfree_0.5.0_all.deb
 
 # 3. Fix any missing dependencies
 sudo apt install -f
@@ -292,7 +301,7 @@ sudo voxfree --install
 ### Upgrade from a previous version
 
 ```bash
-sudo dpkg -i voxfree_0.3.4_all.deb   # dpkg handles the upgrade automatically
+sudo dpkg -i voxfree_0.5.0_all.deb   # dpkg handles the upgrade automatically
 voxfree --doctor                       # verify everything is working
 ```
 
@@ -381,7 +390,7 @@ Shows the installed version:
 
 ```
 $ voxfree --version
-VoxFree 0.3.4
+VoxFree 0.5.0
 ```
 
 ### `voxfree --voice`
@@ -600,4 +609,4 @@ wev   # press each key, read the 'sym' field
 
 ---
 
-*Last updated: June 2026*
+*Last updated: July 2026*
