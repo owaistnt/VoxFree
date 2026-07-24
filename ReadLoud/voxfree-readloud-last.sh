@@ -7,6 +7,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/state.sh" 2>/dev/null || \
     source "/usr/share/voxfree/lib/state.sh" 2>/dev/null || \
     source "${HOME}/.local/share/voxfree/lib/state.sh" 2>/dev/null || true
+source "$SCRIPT_DIR/lib/set-speed.sh" 2>/dev/null || \
+    source "/usr/share/voxfree/lib/set-speed.sh" 2>/dev/null || \
+    source "${HOME}/.local/share/voxfree/lib/set-speed.sh" 2>/dev/null || true
 
 PIDFILE="/tmp/voxfree-readloud.pid"
 
@@ -34,7 +37,7 @@ PREVIEW="${TEXT:0:60}"
 notify-send "VoxFree" "Replaying: $PREVIEW" -i audio-volume-high -t 3000 2>/dev/null
 
 {
-    echo "$TEXT" | mimic3 --voice "$VOICE" --stdout 2>/dev/null | aplay -q 2>/dev/null
+    echo "$TEXT" | mimic3 --voice "$VOICE" --length-scale "$SPEED_SCALE" --stdout 2>/dev/null | aplay -q 2>/dev/null
     rm -f "$PIDFILE"
     state_set_idle
     notify-send "VoxFree" "Done." -i audio-volume-high -t 1500 2>/dev/null

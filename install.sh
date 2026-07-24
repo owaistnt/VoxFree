@@ -199,6 +199,7 @@ case "\${1:-}" in
     --version|-v)  printf "VoxFree %s\n" "\$VERSION" ;;
     --doctor)      shift; exec bash "\$VOXFREE_HOME/voxfree-doctor.sh" "\$@" ;;
     --voice)       shift; exec bash "\$VOXFREE_HOME/voxfree-voice.sh" "\$@" ;;
+    --speed)       shift; exec bash "\$VOXFREE_HOME/voxfree-set-speed.sh" "\$@" ;;
     --switch)      shift; exec bash "\$VOXFREE_HOME/voxfree-switch.sh" "\$@" ;;
     --install)     shift; exec bash "\$VOXFREE_HOME/install.sh" "\$@" ;;
     --uninstall)   shift; exec bash "\$VOXFREE_HOME/uninstall.sh" "\$@" ;;
@@ -209,6 +210,7 @@ case "\${1:-}" in
         printf "  --uninstall [--purge] [--user]           Remove VoxFree\n"
         printf "  --doctor [--tts|--stt] [--fix]           Health check\n"
         printf "  --voice                                  Change TTS voice\n"
+        printf "  --speed [slow|default|fast]              Change TTS playback speed\n"
         printf "  --switch [thinkpad|standard]             Switch keyboard shortcut layout\n"
         printf "  --version                                Show version\n\n"
         printf "Keyboard shortcuts:\n"

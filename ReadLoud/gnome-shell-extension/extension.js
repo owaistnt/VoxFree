@@ -13,8 +13,7 @@ export default class VoxFreeExtension extends Extension {
     enable() {
         this._state = 'idle';
         this._lastText = '';
-        this._voicesLoaded = false;
-        this._voiceItems = [];
+        this._mainItems = [];
 
         this._indicator = new PanelMenu.Button(0.0, this.metadata.name, false);
 
@@ -27,23 +26,45 @@ export default class VoxFreeExtension extends Extension {
         this._readItem = new PopupMenu.PopupMenuItem('Read Aloud');
         this._readItem.connect('activate', () => this._exec('voxfree-readloud'));
         this._indicator.menu.addMenuItem(this._readItem);
+        this._mainItems.push(this._readItem);
 
         this._stopItem = new PopupMenu.PopupMenuItem('Stop Reading');
         this._stopItem.connect('activate', () => this._exec('voxfree-stop-all'));
         this._indicator.menu.addMenuItem(this._stopItem);
+        this._mainItems.push(this._stopItem);
 
         this._replayItem = new PopupMenu.PopupMenuItem('Replay Last');
         this._replayItem.connect('activate', () => this._exec('voxfree-readloud-last'));
         this._indicator.menu.addMenuItem(this._replayItem);
+        this._mainItems.push(this._replayItem);
 
-        this._voicesSeparator = new PopupMenu.PopupSeparatorMenuItem('Voices');
-        this._voicesSeparatorIndex = this._indicator.menu.addMenuItem(this._voicesSeparator);
+        this._speedSeparator = new PopupMenu.PopupSeparatorMenuItem('Playback Speed');
+        this._speedItems = [];
+
+        const speeds = [
+            { label: 'Default (1.0x)', value: 'default' },
+            { label: 'Slow (1.15x)', value: 'slow' },
+            { label: 'Fast (0.85x)', value: 'fast' },
+        ];
+
+        for (const speed of speeds) {
+            const item = new PopupMenu.PopupMenuItem(speed.label);
+            item.connect('activate', () => {
+                this._exec(`voxfree-set-speed ${speed.value}`);
+            });
+            this._indicator.menu.addMenuItem(item);
+            this._speedItems.push(item);
+        }
+
+        this._quitItem = new PopupMenu.PopupMenuItem('Quit');
+        this._quitItem.connect('activate', () => this.disable());
+        this._indicator.menu.addMenuItem(this._quitItem);
+        this._mainItems.push(this._quitItem);
+
+        this._voiceSeparator = new PopupMenu.PopupSeparatorMenuItem('Voices');
+        this._voiceItems = [];
 
         this._indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-
-        const quitItem = new PopupMenu.PopupMenuItem('Quit');
-        quitItem.connect('activate', () => this.disable());
-        this._indicator.menu.addMenuItem(quitItem);
 
         Main.panel.addToStatusArea(this.metadata.uuid, this._indicator, 1, 'right');
 
@@ -69,6 +90,7 @@ export default class VoxFreeExtension extends Extension {
             this._indicator = null;
         }
         this._icon = null;
+        this._speedItems = [];
     }
 
     _exec(cmd) {
@@ -77,15 +99,18 @@ export default class VoxFreeExtension extends Extension {
         );
     }
 
-    _loadVoices() {
-        // Remove old voice items
+    _buildVoiceSection() {
         for (const item of this._voiceItems) {
             this._indicator.menu.removeMenuItem(item);
         }
         this._voiceItems = [];
 
+        this._indicator.menu.addMenuItem(this._voiceSeparator);
+        this._voiceItems.push(this._voiceSeparator);
+
         const voiceScripts = [
             '/usr/share/voxfree/lib/list-voices.sh',
+            '/usr/local/bin/lib/list-voices.sh',
             `${GLib.get_home_dir()}/.local/share/voxfree/lib/list-voices.sh`,
         ];
 
@@ -98,7 +123,7 @@ export default class VoxFreeExtension extends Extension {
                         `bash "${script}"`
                     );
                     if (success) {
-                        voicesOutput = stdout.toString();
+                        voicesOutput = new TextDecoder().decode(stdout);
                         break;
                     }
                 }
@@ -108,13 +133,12 @@ export default class VoxFreeExtension extends Extension {
         if (!voicesOutput.trim()) {
             const note = new PopupMenu.PopupMenuItem('Install Mimic 3 to select voices');
             note.setSensitive(false);
-            this._indicator.menu.insertMenuItem(note, this._voicesSeparatorIndex);
+            this._indicator.menu.addMenuItem(note);
             this._voiceItems.push(note);
             return;
         }
 
-        const lines = voicesOutput.trim().split('\n');
-        for (const line of lines) {
+        for (const line of voicesOutput.trim().split('\n')) {
             const parts = line.trim().split('|');
             if (parts.length !== 4) continue;
             const voice = parts[1];
@@ -130,10 +154,13 @@ export default class VoxFreeExtension extends Extension {
                     return GLib.SOURCE_REMOVE;
                 });
             });
-            const insertIdx = this._voicesSeparatorIndex + 1;
-            this._indicator.menu.insertMenuItem(item, insertIdx);
+            this._indicator.menu.addMenuItem(item);
             this._voiceItems.push(item);
         }
+    }
+
+    _loadVoices() {
+        this._buildVoiceSection();
     }
 
     _readState() {

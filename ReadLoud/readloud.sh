@@ -92,7 +92,7 @@ if [ "$INSTALL_MODE" = "system" ]; then
     MODCONF="/etc/speech-dispatcher/modules/mimic3-generic.conf"
     cp "$MODCONF" "${MODCONF}.bak" 2>/dev/null || true
     cat > "$MODCONF" << 'EOF'
-GenericExecuteSynth "printf %s \'$DATA\' | /usr/bin/mimic3 --voice \'$VOICE\' --stdout 2>/dev/null | aplay -q 2>/dev/null"
+GenericExecuteSynth "printf %s \'$DATA\' | /usr/bin/mimic3 --voice \'$VOICE\' --length-scale 1.0 --stdout 2>/dev/null | aplay -q 2>/dev/null"
 AddVoice "en" "MALE1" "en_UK/apope_low"
 AddVoice "en" "FEMALE1" "en_UK/apope_low"
 EOF
@@ -126,6 +126,20 @@ else
     ok "Voice config exists: $(cat "$VOICE_CFG") → $VOICE_CFG"
 fi
 
+# ── Step 3.5: Speed config directory ──────────────────────────────────────────
+section "Step 3.5: Playback speed configuration"
+mkdir -p "$CONF_DIR"
+[ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$CONF_DIR" 2>/dev/null || true
+
+SPEED_CFG="$CONF_DIR/speed"
+if [ ! -f "$SPEED_CFG" ]; then
+    echo "default" > "$SPEED_CFG"
+    [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$SPEED_CFG" 2>/dev/null || true
+    ok "Default playback speed set: default → $SPEED_CFG"
+else
+    ok "Playback speed config exists: $(cat "$SPEED_CFG") → $SPEED_CFG"
+fi
+
 # ── Step 4: Install scripts ───────────────────────────────────────────────────
 section "Step 4: Installing scripts"
 mkdir -p "$BIN_DIR"
@@ -149,6 +163,7 @@ install_script "voxfree-stop-all.sh"         "voxfree-stop-all"
 install_script "voxfree-readloud-last.sh"    "voxfree-readloud-last"
 install_script "voxfree-indicator"           "voxfree-indicator"
 install_script "voxfree-set-voice.sh"        "voxfree-set-voice"
+install_script "../voxfree-set-speed.sh"      "voxfree-set-speed"
 
 # Install lib scripts alongside the scripts
 STATE_LIB_DEST="$BIN_DIR/lib"
@@ -164,6 +179,12 @@ if [ -f "$VOXFREE_DIR/lib/list-voices.sh" ]; then
     chmod 644 "$STATE_LIB_DEST/list-voices.sh"
     [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$STATE_LIB_DEST" "$STATE_LIB_DEST/list-voices.sh" 2>/dev/null || true
     ok "$STATE_LIB_DEST/list-voices.sh"
+fi
+if [ -f "$VOXFREE_DIR/lib/set-speed.sh" ]; then
+    cp "$VOXFREE_DIR/lib/set-speed.sh" "$STATE_LIB_DEST/set-speed.sh"
+    chmod 644 "$STATE_LIB_DEST/set-speed.sh"
+    [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$STATE_LIB_DEST" "$STATE_LIB_DEST/set-speed.sh" 2>/dev/null || true
+    ok "$STATE_LIB_DEST/set-speed.sh"
 fi
 
 # ── Step 5: GNOME keyboard shortcuts ─────────────────────────────────────────
@@ -259,14 +280,24 @@ if [ -f "$RL_DIR/voxfree-indicator" ]; then
     fi
 
     if [ "$INSTALL_INDICATOR" != "no" ]; then
-        if [ "$INSTALL_MODE" = "system" ]; then
-            AUTOSTART_DIR="/etc/xdg/autostart"
-        else
-            AUTOSTART_DIR="$ACTUAL_HOME/.config/autostart"
-            mkdir -p "$AUTOSTART_DIR"
+        # Detect GNOME — if GNOME, the shell extension handles the icon,
+        # so we skip the .desktop autostart to avoid duplicate icons.
+        IS_GNOME=false
+        if [ -n "$XDG_CURRENT_DESKTOP" ]; then
+            case "$XDG_CURRENT_DESKTOP" in
+                *GNOME*) IS_GNOME=true ;;
+            esac
         fi
+        if [ "$IS_GNOME" = false ] && [ -z "$GNOME_SHELL_SESSION_MODE" ]; then
+            # Not GNOME: create .desktop autostart for Python indicator
+            if [ "$INSTALL_MODE" = "system" ]; then
+                AUTOSTART_DIR="/etc/xdg/autostart"
+            else
+                AUTOSTART_DIR="$ACTUAL_HOME/.config/autostart"
+                mkdir -p "$AUTOSTART_DIR"
+            fi
 
-        cat > "$AUTOSTART_DIR/voxfree-indicator.desktop" << DESKTOPF
+            cat > "$AUTOSTART_DIR/voxfree-indicator.desktop" << DESKTOPF
 [Desktop Entry]
 Type=Application
 Name=VoxFree ReadLoud Indicator
@@ -276,9 +307,12 @@ Terminal=false
 Categories=Utility;Audio;
 X-GNOME-Autostart-enabled=true
 DESKTOPF
-        chmod 644 "$AUTOSTART_DIR/voxfree-indicator.desktop"
-        [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$AUTOSTART_DIR/voxfree-indicator.desktop" 2>/dev/null || true
-        ok "Autostart configured: $AUTOSTART_DIR/voxfree-indicator.desktop"
+            chmod 644 "$AUTOSTART_DIR/voxfree-indicator.desktop"
+            [ "$INSTALL_MODE" != "system" ] && chown "$ACTUAL_USER:$ACTUAL_USER" "$AUTOSTART_DIR/voxfree-indicator.desktop" 2>/dev/null || true
+            ok "Autostart configured: $AUTOSTART_DIR/voxfree-indicator.desktop"
+        elif [ "$IS_GNOME" = true ]; then
+            ok "GNOME detected — skipping Python indicator autostart (GNOME extension will show the icon)"
+        fi
 
         # Install GNOME Shell extension (replaces Python indicator on GNOME)
         if [ "$INSTALL_MODE" = "system" ]; then

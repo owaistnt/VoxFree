@@ -171,6 +171,15 @@ The long-term goal is to make the Linux desktop feel more immersive and accessib
 
 ---
 
+## What's New in 0.6.0
+
+- **Playback Speed Presets** — Run `voxfree --speed` to choose between Slow (1.15x), Default (1.0x), and Fast (0.85x) playback speeds. Change it anytime.
+- **GNOME Shell Extension — Playback Speed Menu** — The top-panel indicator now has a "Playback Speed" section with preset options. Selecting a speed applies immediately.
+- **Voice List Library** — Shared `lib/list-voices.sh` used by the indicator, voice selector, and `voxfree --voice` for a unified view of available and installed voices.
+- **Bug Fixes** — Duplicate voices in the indicator list, extension upgrade compatibility.
+
+---
+
 ## What's New in 0.5.0
 
 - **Voice Selector** — Run `voxfree --voice` to browse, preview, and switch between all available Mimic 3 voices. Uninstalled voices are downloaded automatically.
@@ -415,6 +424,20 @@ Interactive voice selector for ReadLoud. Lists all available English voices from
 
   ✔ = installed locally   ↓ = download required   ★ = current
 
+### `voxfree --speed`
+
+Interactive playback speed selector for ReadLoud. Choose between Slow (1.15x), Default (1.0x), and Fast (0.85x) presets:
+
+```bash
+voxfree --speed              # interactive selector
+voxfree --speed slow         # set slow playback
+voxfree --speed default      # set default playback
+voxfree --speed fast         # set fast playback
+voxfree --speed current      # show current speed
+```
+
+The setting is stored in `~/.config/voxfree/speed` and takes effect immediately.
+
   Enter number to select (or q to quit):
 ```
 
@@ -433,6 +456,7 @@ voxfree --install [--tts|--stt|--all] [--user]   Install or reconfigure
 voxfree --uninstall [--purge] [--user]            Remove VoxFree
 voxfree --doctor [--tts|--stt] [--fix]            Health check
 voxfree --voice                                   Change TTS voice
+voxfree --speed [slow|default|fast]               Change TTS playback speed
 voxfree --switch [thinkpad|standard]              Switch keyboard shortcut layout
 voxfree --version                                 Show version
 ```
